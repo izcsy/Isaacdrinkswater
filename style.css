@@ -1,0 +1,425 @@
+* { box-sizing: border-box; }
+
+:root{
+  --bg: #f4f7ff;
+  --card: #ffffff;
+  --ink: #111827;
+  --muted: #6b7280;
+  --blue: #2d6cff;
+  --shadow: 0 10px 30px rgba(0,0,0,0.08);
+  --line: #e6e6e6;
+}
+
+body{
+  margin:0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  background: var(--bg);
+  min-height: 100vh;
+  color: var(--ink);
+}
+
+/* Layout */
+.layout{
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 260px 1fr;
+  grid-template-rows: auto 1fr auto;
+  gap: 16px;
+  padding: 16px;
+}
+
+/* Top bar + hamburger */
+.topBar{
+  grid-column: 1 / -1;
+  display:flex;
+  align-items:center;
+  position: relative;
+}
+
+.menuBtn{
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  box-shadow: var(--shadow);
+  cursor:pointer;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.menuPanel{
+  position: absolute;
+  top: 54px;
+  left: 0;
+  width: 220px;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  padding: 8px;
+  display:none;
+  z-index: 20;
+}
+
+.menuPanel.open{ display:block; }
+
+.menuItem{
+  width:100%;
+  text-align:left;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 0;
+  background: transparent;
+  cursor:pointer;
+  font-weight: 800;
+}
+
+.menuItem:hover{ background: rgba(45,108,255,0.08); }
+.menuItem.subtle{ color: var(--muted); }
+
+/* Left panel */
+.leftPanel{
+  grid-column: 1;
+  grid-row: 2;
+  display:flex;
+  flex-direction: column;
+  gap: 12px;
+  align-self: start;
+}
+
+.stat{
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 14px;
+  box-shadow: var(--shadow);
+}
+
+.statLabel{
+  font-size: 13px;
+  color: var(--muted);
+  margin-bottom: 6px;
+  font-weight: 800;
+}
+
+.statValue{
+  font-size: 28px;
+  font-weight: 900;
+  color: var(--blue);
+}
+
+.undoBtn{
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--line);
+  background: var(--card);
+  box-shadow: var(--shadow);
+  cursor:pointer;
+  font-weight: 900;
+}
+.undoBtn:active{ transform: translateY(1px); }
+
+/* Center area */
+.centerArea{
+  grid-column: 2;
+  grid-row: 2;
+  display:grid;
+  place-items:center;
+  gap: 14px;
+}
+
+/* Progress card */
+.progressCard{
+  width: min(560px, 92vw);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  padding: 14px 14px 12px;
+}
+
+.progressHeader{
+  display:flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.progressTitle{
+  font-weight: 900;
+  color: var(--ink);
+}
+
+.progressText{
+  font-weight: 900;
+  color: var(--blue);
+}
+
+.progressBar{
+  margin-top: 10px;
+  height: 12px;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.08);
+  overflow:hidden;
+}
+
+.progressFill{
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: var(--blue);
+  transition: width 180ms ease, background 180ms ease;
+}
+
+.progressHint{
+  margin-top: 10px;
+  color: var(--muted);
+  font-weight: 700;
+  font-size: 13px;
+}
+
+/* Bottle (NO card/box styles) */
+.bottleBtn{
+  border: 0;
+  background: transparent;
+  cursor:pointer;
+  display:flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+}
+
+.bottleBtn:active{ transform: translateY(2px) scale(0.99); }
+
+.bottleHint{
+  font-weight: 900;
+  color: var(--blue);
+}
+
+/* Bottle drawing (CSS) */
+.bottleWrap{ position: relative; width: 150px; height: 220px; }
+.bottleCap{
+  position:absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 56px;
+  height: 34px;
+  border-radius: 12px 12px 8px 8px;
+  background: rgba(0,0,0,0.10);
+  border: 1px solid rgba(0,0,0,0.12);
+}
+.bottleBody{
+  position:absolute;
+  top: 24px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 140px;
+  height: 190px;
+  border-radius: 44px;
+  background: rgba(255,255,255,0.55);
+  border: 1px solid rgba(0,0,0,0.12);
+  overflow:hidden;
+  /* ❌ removed box shadow here so it doesn't look like a card */
+  box-shadow: none;
+}
+.bottleWater{
+  position:absolute;
+  left:0;
+  bottom:0;
+  width:100%;
+  height: 0%;
+  background: #ef4444;
+  transition: height 220ms ease, background 220ms ease;
+}
+.bottleGloss{
+  position:absolute;
+  top: 18px;
+  right: 16px;
+  width: 30px;
+  height: 130px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.55);
+  opacity: 0.7;
+}
+
+/* Bottom bar (kept for grid consistency) */
+.bottomBar{
+  grid-column: 1 / -1;
+  grid-row: 3;
+  display:flex;
+  justify-content:center;
+}
+
+/* Generic card styles used in modals */
+.card{
+  width: min(560px, 92vw);
+  background: var(--card);
+  padding: 24px;
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  border: 1px solid var(--line);
+}
+
+label{ display:block; margin: 12px 0; }
+
+input[type="number"]{
+  width:100%;
+  padding: 10px;
+  border-radius: 10px;
+  border: 1px solid #ddd;
+  margin-top: 6px;
+  font-size: 16px;
+}
+
+.row{
+  display:flex;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+#startBtn, #stopBtn{
+  padding: 12px 14px;
+  border: 0;
+  border-radius: 12px;
+  font-weight: 900;
+  cursor:pointer;
+  font-size: 16px;
+  flex:1;
+}
+
+#startBtn{ background: var(--blue); color:#fff; }
+#stopBtn{ background: #eee; }
+
+button:disabled{ opacity: 0.6; cursor:not-allowed; }
+
+.checkbox{
+  display:flex;
+  gap: 10px;
+  align-items:center;
+  margin-top: 14px;
+}
+
+.status{
+  margin-top: 14px;
+  font-weight: 900;
+  color: var(--blue);
+}
+
+/* Modal */
+.modalOverlay{
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  display:none;
+  z-index: 50;
+  padding: 18px;
+}
+.modalOverlay.open{ display:flex; align-items:center; justify-content:center; }
+
+.modal{
+  width: min(720px, 96vw);
+  max-height: min(80vh, 720px);
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: 0 30px 80px rgba(0,0,0,0.25);
+  overflow:hidden;
+  display:flex;
+  flex-direction: column;
+}
+
+.modalHeader{
+  padding: 14px 14px 10px;
+  border-bottom: 1px solid var(--line);
+  display:flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.modalTitle{ font-weight: 900; }
+.modalSub{ color: var(--muted); font-weight: 700; font-size: 13px; margin-top: 2px; }
+
+.iconBtn{
+  border: 1px solid var(--line);
+  background: var(--card);
+  border-radius: 12px;
+  width: 42px;
+  height: 42px;
+  cursor:pointer;
+  font-weight: 900;
+}
+
+.modalBody{
+  padding: 12px 14px 14px;
+  overflow:auto;
+}
+
+.emptyState{
+  color: var(--muted);
+  font-weight: 800;
+  padding: 10px 4px;
+}
+
+.historyList{
+  display:flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.dayGroup{
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 10px 12px;
+  background: rgba(0,0,0,0.02);
+}
+
+.dayTitle{
+  font-weight: 900;
+  margin-bottom: 6px;
+  display:flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.dayTotal{
+  color: var(--blue);
+  font-weight: 900;
+}
+
+.dayEntries{
+  display:flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.timeChip{
+  border: 1px solid var(--line);
+  background: var(--card);
+  border-radius: 999px;
+  padding: 6px 10px;
+  font-weight: 900;
+  color: #374151;
+  font-size: 12px;
+}
+
+/* Mobile */
+@media (max-width: 760px){
+  .layout{
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto 1fr auto;
+  }
+  .leftPanel{
+    grid-column: 1;
+    grid-row: 2;
+    flex-direction: row;
+    align-items: stretch;
+    flex-wrap: wrap;
+  }
+  .stat{ flex: 1; min-width: 160px; }
+  .undoBtn{ width:100%; }
+  .centerArea{ grid-column: 1; grid-row: 3; }
+  .bottomBar{ grid-column: 1; grid-row: 4; }
+}

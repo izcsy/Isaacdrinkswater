@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Water Reminder</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body>
+  <div class="layout">
+
+    <!-- Top bar -->
+    <header class="topBar">
+      <button id="menuBtn" class="menuBtn" type="button" aria-label="Open menu" aria-expanded="false">☰</button>
+
+      <div id="menuPanel" class="menuPanel" aria-hidden="true">
+        <button id="historyBtn" class="menuItem" type="button">History (30 days)</button>
+        <button id="reminderBtn" class="menuItem" type="button">Water reminder</button>
+        <button id="closeMenuBtn" class="menuItem subtle" type="button">Close</button>
+      </div>
+    </header>
+
+    <!-- Left counters -->
+    <aside class="leftPanel">
+      <div class="stat">
+        <div class="statLabel">Clicks (today)</div>
+        <div class="statValue" id="clickCount">0</div>
+      </div>
+
+      <div class="stat">
+        <div class="statLabel">Water drunk (today)</div>
+        <div class="statValue"><span id="mlCount">0</span> ml</div>
+      </div>
+
+      <button id="undoBtn" class="undoBtn" type="button">Undo</button>
+    </aside>
+
+    <!-- Center: progress + bottle -->
+    <main class="centerArea">
+      <div class="progressCard">
+        <div class="progressHeader">
+          <div class="progressTitle">Progress feedback</div>
+          <div class="progressText"><span id="progressNow">0</span> / <span id="progressGoal">2000</span> ml</div>
+        </div>
+
+        <div class="progressBar">
+          <div id="progressFill" class="progressFill"></div>
+        </div>
+
+        <div class="progressHint" id="progressHint">Tap the bottle to log 50ml.</div>
+      </div>
+
+      <!-- Bottle (NO surrounding box) -->
+      <button id="bottleBtn" class="bottleBtn" aria-label="Drink water" type="button">
+        <div class="bottleWrap">
+          <div class="bottleCap"></div>
+          <div class="bottleBody">
+            <div id="bottleWater" class="bottleWater"></div>
+            <div class="bottleGloss"></div>
+          </div>
+        </div>
+        <div class="bottleHint">Click to log 50ml</div>
+      </button>
+    </main>
+
+    <!-- Bottom bar (empty now by design) -->
+    <div class="bottomBar"></div>
+  </div>
+
+  <!-- History modal -->
+  <div id="historyModal" class="modalOverlay" aria-hidden="true">
+    <div class="modal">
+      <div class="modalHeader">
+        <div>
+          <div class="modalTitle">History (last 30 days)</div>
+          <div class="modalSub">Every entry is one bottle click (50ml).</div>
+        </div>
+        <button id="closeHistoryBtn" class="iconBtn" type="button" aria-label="Close history">✕</button>
+      </div>
+
+      <div class="modalBody">
+        <div id="historyEmpty" class="emptyState">No history yet. Click the bottle to start logging.</div>
+        <div id="historyList" class="historyList"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Water Reminder modal (from your screenshot UI) -->
+  <div id="reminderModal" class="modalOverlay" aria-hidden="true">
+    <div class="modal">
+      <div class="modalHeader">
+        <div>
+          <div class="modalTitle">💧 Water Reminder</div>
+          <div class="modalSub">Set an interval and get reminded to drink water.</div>
+        </div>
+        <button id="closeReminderBtn" class="iconBtn" type="button" aria-label="Close reminder">✕</button>
+      </div>
+
+      <div class="modalBody">
+        <div class="card" style="box-shadow:none;border:0;padding:0;width:100%;">
+          <label>
+            Reminder interval (minutes):
+            <input id="minutes" type="number" min="1" value="60" />
+          </label>
+
+          <div class="row">
+            <button id="startBtn" type="button">Start</button>
+            <button id="stopBtn" type="button" disabled>Stop</button>
+          </div>
+
+          <label class="checkbox">
+            <input id="notifToggle" type="checkbox" />
+            Use browser notifications (optional)
+          </label>
+
+          <p class="status" id="status">Not running</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <audio id="ding" preload="auto">
+    <source src="https://actions.google.com/sounds/v1/alarms/beep_short.ogg" type="audio/ogg">
+  </audio>
+
+  <script src="script.js"></script>
+</body>
+</html>

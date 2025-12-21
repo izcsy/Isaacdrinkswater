@@ -45,21 +45,21 @@ body{
   box-shadow: var(--shadow);
   cursor:pointer;
   font-size: 20px;
-  font-weight: 800;
+  font-weight: 900;
 }
 
 .menuPanel{
   position: absolute;
   top: 54px;
   left: 0;
-  width: 220px;
+  width: 240px;
   background: var(--card);
   border: 1px solid var(--line);
   border-radius: 14px;
   box-shadow: var(--shadow);
   padding: 8px;
   display:none;
-  z-index: 20;
+  z-index: 100;
 }
 
 .menuPanel.open{ display:block; }
@@ -72,7 +72,7 @@ body{
   border: 0;
   background: transparent;
   cursor:pointer;
-  font-weight: 800;
+  font-weight: 900;
 }
 
 .menuItem:hover{ background: rgba(45,108,255,0.08); }
@@ -100,12 +100,12 @@ body{
   font-size: 13px;
   color: var(--muted);
   margin-bottom: 6px;
-  font-weight: 800;
+  font-weight: 900;
 }
 
 .statValue{
   font-size: 28px;
-  font-weight: 900;
+  font-weight: 950;
   color: var(--blue);
 }
 
@@ -116,7 +116,7 @@ body{
   background: var(--card);
   box-shadow: var(--shadow);
   cursor:pointer;
-  font-weight: 900;
+  font-weight: 950;
 }
 .undoBtn:active{ transform: translateY(1px); }
 
@@ -147,12 +147,11 @@ body{
 }
 
 .progressTitle{
-  font-weight: 900;
-  color: var(--ink);
+  font-weight: 950;
 }
 
 .progressText{
-  font-weight: 900;
+  font-weight: 950;
   color: var(--blue);
 }
 
@@ -175,11 +174,11 @@ body{
 .progressHint{
   margin-top: 10px;
   color: var(--muted);
-  font-weight: 700;
+  font-weight: 800;
   font-size: 13px;
 }
 
-/* Bottle (NO card/box styles) */
+/* Bottle */
 .bottleBtn{
   border: 0;
   background: transparent;
@@ -190,15 +189,14 @@ body{
   gap: 10px;
   padding: 10px;
 }
-
 .bottleBtn:active{ transform: translateY(2px) scale(0.99); }
 
 .bottleHint{
-  font-weight: 900;
+  font-weight: 950;
   color: var(--blue);
 }
 
-/* Bottle drawing (CSS) */
+/* Bottle drawing */
 .bottleWrap{ position: relative; width: 150px; height: 220px; }
 .bottleCap{
   position:absolute;
@@ -222,7 +220,6 @@ body{
   background: rgba(255,255,255,0.55);
   border: 1px solid rgba(0,0,0,0.12);
   overflow:hidden;
-  /* ❌ removed box shadow here so it doesn't look like a card */
   box-shadow: none;
 }
 .bottleWater{
@@ -245,86 +242,33 @@ body{
   opacity: 0.7;
 }
 
-/* Bottom bar (kept for grid consistency) */
+/* Bottom bar */
 .bottomBar{
   grid-column: 1 / -1;
   grid-row: 3;
-  display:flex;
-  justify-content:center;
 }
 
-/* Generic card styles used in modals */
-.card{
-  width: min(560px, 92vw);
-  background: var(--card);
-  padding: 24px;
-  border-radius: 16px;
-  box-shadow: var(--shadow);
-  border: 1px solid var(--line);
-}
-
-label{ display:block; margin: 12px 0; }
-
-input[type="number"]{
-  width:100%;
-  padding: 10px;
-  border-radius: 10px;
-  border: 1px solid #ddd;
-  margin-top: 6px;
-  font-size: 16px;
-}
-
-.row{
-  display:flex;
-  gap: 10px;
-  margin-top: 12px;
-}
-
-#startBtn, #stopBtn{
-  padding: 12px 14px;
-  border: 0;
-  border-radius: 12px;
-  font-weight: 900;
-  cursor:pointer;
-  font-size: 16px;
-  flex:1;
-}
-
-#startBtn{ background: var(--blue); color:#fff; }
-#stopBtn{ background: #eee; }
-
-button:disabled{ opacity: 0.6; cursor:not-allowed; }
-
-.checkbox{
-  display:flex;
-  gap: 10px;
-  align-items:center;
-  margin-top: 14px;
-}
-
-.status{
-  margin-top: 14px;
-  font-weight: 900;
-  color: var(--blue);
-}
-
-/* Modal */
+/* Modals */
 .modalOverlay{
   position: fixed;
   inset: 0;
   background: rgba(0,0,0,0.35);
   display:none;
-  z-index: 50;
+  z-index: 1000;
   padding: 18px;
 }
-.modalOverlay.open{ display:flex; align-items:center; justify-content:center; }
+.modalOverlay.open{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
 
 .modal{
-  width: min(720px, 96vw);
-  max-height: min(80vh, 720px);
+  width: min(780px, 96vw);
+  max-height: min(84vh, 780px);
   background: var(--card);
   border: 1px solid var(--line);
-  border-radius: 16px;
+  border-radius: 18px;
   box-shadow: 0 30px 80px rgba(0,0,0,0.25);
   overflow:hidden;
   display:flex;
@@ -336,33 +280,38 @@ button:disabled{ opacity: 0.6; cursor:not-allowed; }
   border-bottom: 1px solid var(--line);
   display:flex;
   justify-content: space-between;
+  align-items:flex-start;
   gap: 12px;
 }
 
-.modalTitle{ font-weight: 900; }
-.modalSub{ color: var(--muted); font-weight: 700; font-size: 13px; margin-top: 2px; }
+.modalTitle{ font-weight: 950; }
+.modalSub{ color: var(--muted); font-weight: 800; font-size: 13px; margin-top: 2px; }
 
 .iconBtn{
   border: 1px solid var(--line);
   background: var(--card);
-  border-radius: 12px;
-  width: 42px;
-  height: 42px;
+  border-radius: 14px;
+  width: 46px;
+  height: 46px;
   cursor:pointer;
-  font-weight: 900;
+  font-weight: 950;
+  display:grid;
+  place-items:center;
 }
+.iconBtn:active{ transform: translateY(1px); }
 
 .modalBody{
-  padding: 12px 14px 14px;
+  padding: 14px;
   overflow:auto;
 }
 
 .emptyState{
   color: var(--muted);
-  font-weight: 800;
+  font-weight: 900;
   padding: 10px 4px;
 }
 
+/* History */
 .historyList{
   display:flex;
   flex-direction: column;
@@ -377,7 +326,7 @@ button:disabled{ opacity: 0.6; cursor:not-allowed; }
 }
 
 .dayTitle{
-  font-weight: 900;
+  font-weight: 950;
   margin-bottom: 6px;
   display:flex;
   justify-content: space-between;
@@ -386,7 +335,7 @@ button:disabled{ opacity: 0.6; cursor:not-allowed; }
 
 .dayTotal{
   color: var(--blue);
-  font-weight: 900;
+  font-weight: 950;
 }
 
 .dayEntries{
@@ -400,9 +349,107 @@ button:disabled{ opacity: 0.6; cursor:not-allowed; }
   background: var(--card);
   border-radius: 999px;
   padding: 6px 10px;
-  font-weight: 900;
+  font-weight: 950;
   color: #374151;
   font-size: 12px;
+}
+
+/* Reminder UI inside modal */
+.reminderCard{
+  width: min(640px, 100%);
+  margin: 0 auto;
+  padding: 4px 0 0;
+}
+
+.remLabel{
+  display:block;
+  margin: 10px 0 12px;
+  font-weight: 900;
+}
+
+input[type="number"]{
+  width:100%;
+  padding: 12px 12px;
+  border-radius: 14px;
+  border: 1px solid #ddd;
+  margin-top: 8px;
+  font-size: 18px;
+}
+
+.row{
+  display:flex;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+#startBtn, #stopBtn{
+  padding: 14px 16px;
+  border: 0;
+  border-radius: 16px;
+  font-weight: 950;
+  cursor:pointer;
+  font-size: 18px;
+  flex:1;
+}
+
+#startBtn{ background: var(--blue); color:#fff; }
+#stopBtn{ background: #eee; }
+
+button:disabled{ opacity: 0.6; cursor:not-allowed; }
+
+.checkbox{
+  display:flex;
+  gap: 12px;
+  align-items:center;
+  margin-top: 16px;
+  font-weight: 900;
+}
+
+.status{
+  margin-top: 16px;
+  font-weight: 950;
+  color: var(--blue);
+}
+
+/* Chart */
+.chartControls{
+  display:flex;
+  justify-content: space-between;
+  align-items:center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.chartLabel{
+  font-weight: 950;
+}
+
+.chartSelect{
+  margin-left: 10px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  font-weight: 900;
+}
+
+.chartTotal{
+  font-weight: 950;
+  color: var(--blue);
+}
+
+.chartCard{
+  border: 1px solid var(--line);
+  background: rgba(0,0,0,0.02);
+  border-radius: 16px;
+  padding: 12px;
+}
+
+.chartLegend{
+  margin-top: 10px;
+  color: var(--muted);
+  font-weight: 850;
+  font-size: 13px;
 }
 
 /* Mobile */

@@ -17,6 +17,7 @@
       <div id="menuPanel" class="menuPanel" aria-hidden="true">
         <button id="historyBtn" class="menuItem" type="button">History (30 days)</button>
         <button id="reminderBtn" class="menuItem" type="button">Water reminder</button>
+        <button id="chartBtn" class="menuItem" type="button">Drinking chart</button>
         <button id="closeMenuBtn" class="menuItem subtle" type="button">Close</button>
       </div>
     </header>
@@ -51,7 +52,7 @@
         <div class="progressHint" id="progressHint">Tap the bottle to log 50ml.</div>
       </div>
 
-      <!-- Bottle (NO surrounding box) -->
+      <!-- Bottle -->
       <button id="bottleBtn" class="bottleBtn" aria-label="Drink water" type="button">
         <div class="bottleWrap">
           <div class="bottleCap"></div>
@@ -64,7 +65,7 @@
       </button>
     </main>
 
-    <!-- Bottom bar (empty now by design) -->
+    <!-- Bottom bar kept empty (grid spacing) -->
     <div class="bottomBar"></div>
   </div>
 
@@ -74,7 +75,7 @@
       <div class="modalHeader">
         <div>
           <div class="modalTitle">History (last 30 days)</div>
-          <div class="modalSub">Every entry is one bottle click (50ml).</div>
+          <div class="modalSub">Each entry is one bottle click (50ml).</div>
         </div>
         <button id="closeHistoryBtn" class="iconBtn" type="button" aria-label="Close history">✕</button>
       </div>
@@ -86,7 +87,7 @@
     </div>
   </div>
 
-  <!-- Water Reminder modal (from your screenshot UI) -->
+  <!-- Water Reminder modal -->
   <div id="reminderModal" class="modalOverlay" aria-hidden="true">
     <div class="modal">
       <div class="modalHeader">
@@ -98,8 +99,8 @@
       </div>
 
       <div class="modalBody">
-        <div class="card" style="box-shadow:none;border:0;padding:0;width:100%;">
-          <label>
+        <div class="reminderCard">
+          <label class="remLabel">
             Reminder interval (minutes):
             <input id="minutes" type="number" min="1" value="60" />
           </label>
@@ -115,6 +116,37 @@
           </label>
 
           <p class="status" id="status">Not running</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Drinking chart modal -->
+  <div id="chartModal" class="modalOverlay" aria-hidden="true">
+    <div class="modal">
+      <div class="modalHeader">
+        <div>
+          <div class="modalTitle">📊 Drinking chart</div>
+          <div class="modalSub">Shows how much you drank each hour.</div>
+        </div>
+        <button id="closeChartBtn" class="iconBtn" type="button" aria-label="Close chart">✕</button>
+      </div>
+
+      <div class="modalBody">
+        <div class="chartControls">
+          <label class="chartLabel">
+            Date:
+            <select id="chartDateSelect" class="chartSelect"></select>
+          </label>
+          <div class="chartTotal">Total: <span id="chartTotalMl">0</span> ml</div>
+        </div>
+
+        <div class="chartCard">
+          <canvas id="chartCanvas" width="900" height="360"></canvas>
+        </div>
+
+        <div class="chartLegend">
+          Each bar = total ml in that hour (50ml per click).
         </div>
       </div>
     </div>

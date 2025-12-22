@@ -37,12 +37,21 @@
       <button id="undoBtn" class="undoBtn" type="button">Undo</button>
     </aside>
 
-    <!-- Center: progress + bottle -->
+    <!-- Center -->
     <main class="centerArea">
       <div class="progressCard">
         <div class="progressHeader">
           <div class="progressTitle">Progress feedback</div>
-          <div class="progressText"><span id="progressNow">0</span> / <span id="progressGoal">2000</span> ml</div>
+
+          <div class="progressRight">
+            <div class="progressText"><span id="progressNow">0</span> / <span id="progressGoal">2000</span> ml</div>
+
+            <!-- Streak badge -->
+            <div class="streakBadge" title="Days you hit your goal">
+              <span class="streakIcon">🔥</span>
+              <span id="streakCount">0</span>
+            </div>
+          </div>
         </div>
 
         <div class="progressBar">
@@ -65,9 +74,11 @@
       </button>
     </main>
 
-    <!-- Bottom bar kept empty (grid spacing) -->
     <div class="bottomBar"></div>
   </div>
+
+  <!-- Toast -->
+  <div id="toast" class="toast" aria-live="polite"></div>
 
   <!-- History modal -->
   <div id="historyModal" class="modalOverlay" aria-hidden="true">

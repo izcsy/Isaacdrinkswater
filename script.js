@@ -2,14 +2,31 @@
   /***********************
    * CONFIG
    ***********************/
-  const ML_PER_CLICK = 50;
   const DEFAULT_DAILY_GOAL = 2000;
   const HISTORY_DAYS = 30;
 
-  const LS_EVENTS  = "water_events_v3";
-  const LS_GOAL    = "water_goal_v3";
-  const LS_STREAK  = "water_streak_v1";
-  const LS_AWARDED_DAY = "water_streak_awarded_day_v1"; // YYYY-MM-DD
+  // Storage keys
+  const LS_EVENTS = "water_events_v4"; // now stores [{ts:number, ml:number}]
+  const LS_GOAL = "water_goal_v3";
+  const LS_STREAK = "water_streak_v1";
+  const LS_AWARDED_DAY = "water_streak_awarded_day_v1";
+  const LS_THEME = "water_theme_v1"; // "light" | "dark"
+  const LS_PROFILE = "water_profile_v1"; // personalisation settings
+
+  const DEFAULT_PROFILE = {
+    weightKg: "",
+    gender: "unspecified",
+    activity: "sedentary",
+    weather: "normal",
+    cupMl: 50,
+    outfit: {
+      headwear: "none",
+      facewear: "none",
+      shirt: "none",
+      bottoms: "none",
+      shoes: "none",
+    }
+  };
 
   /***********************
    * UTIL
@@ -27,7 +44,7 @@
   }
 
   function pruneOldEvents(events){
-    return events.filter(ts => isWithinLastDays(ts, HISTORY_DAYS));
+    return events.filter(e => isWithinLastDays(e.ts, HISTORY_DAYS));
   }
 
   function clamp01(x){ return Math.max(0, Math.min(1, x)); }
@@ -47,7 +64,6 @@
     return `rgb(${r}, ${g}, ${bl})`;
   }
 
-  // Red -> Yellow -> Blue based on progress
   function colorForProgress(p){
     p = clamp01(p);
     if (p <= 0.5) return mixColor("#ef4444", "#f59e0b", p / 0.5);
@@ -57,22 +73,50 @@
   function msUntilNextMidnight(){
     const now = new Date();
     const next = new Date(now);
-    next.setHours(24, 0, 0, 0); // next 00:00
+    next.setHours(24, 0, 0, 0);
     return next.getTime() - now.getTime();
+  }
+
+  function safeJsonParse(raw, fallback){
+    try { return JSON.parse(raw); } catch { return fallback; }
   }
 
   /***********************
    * STORAGE
    ***********************/
   function loadEvents(){
-    try{
-      const raw = localStorage.getItem(LS_EVENTS);
-      const arr = raw ? JSON.parse(raw) : [];
-      return Array.isArray(arr) ? arr.filter(n => typeof n === "number") : [];
-    } catch {
-      return [];
+    // Migration: older versions stored [number, number, ...]
+    const candidates = [
+      localStorage.getItem(LS_EVENTS),
+      localStorage.getItem("water_events_v3") // attempt to migrate
+    ].filter(Boolean);
+
+    if (candidates.length === 0) return [];
+
+    const arr = safeJsonParse(candidates[0], []);
+    if (!Array.isArray(arr)) return [];
+
+    // If numbers: migrate to objects with default 50ml
+    if (arr.length > 0 && typeof arr[0] === "number") {
+      const migrated = arr
+        .filter(n => typeof n === "number")
+        .map(ts => ({ ts, ml: 50 }));
+      localStorage.setItem(LS_EVENTS, JSON.stringify(migrated));
+      return migrated;
     }
+
+    // If objects: validate
+    const cleaned = arr
+      .filter(o => o && typeof o === "object")
+      .map(o => ({
+        ts: (typeof o.ts === "number" ? o.ts : NaN),
+        ml: (typeof o.ml === "number" ? o.ml : NaN),
+      }))
+      .filter(o => Number.isFinite(o.ts) && Number.isFinite(o.ml) && o.ml > 0);
+
+    return cleaned;
   }
+
   function saveEvents(events){
     localStorage.setItem(LS_EVENTS, JSON.stringify(events));
   }
@@ -99,6 +143,41 @@
     localStorage.setItem(LS_AWARDED_DAY, dayKey);
   }
 
+  function loadTheme(){
+    const t = localStorage.getItem(LS_THEME);
+    return (t === "dark" || t === "light") ? t : "light";
+  }
+  function saveTheme(t){
+    localStorage.setItem(LS_THEME, t);
+  }
+
+  function loadProfile(){
+    const raw = localStorage.getItem(LS_PROFILE);
+    const p = raw ? safeJsonParse(raw, null) : null;
+
+    const merged = structuredClone(DEFAULT_PROFILE);
+    if (p && typeof p === "object") {
+      if (typeof p.weightKg === "string" || typeof p.weightKg === "number") merged.weightKg = String(p.weightKg ?? "");
+      if (typeof p.gender === "string") merged.gender = p.gender;
+      if (typeof p.activity === "string") merged.activity = p.activity;
+      if (typeof p.weather === "string") merged.weather = p.weather;
+
+      const cup = Number(p.cupMl);
+      merged.cupMl = [50,100,200].includes(cup) ? cup : 50;
+
+      if (p.outfit && typeof p.outfit === "object") {
+        for (const k of ["headwear","facewear","shirt","bottoms","shoes"]) {
+          if (typeof p.outfit[k] === "string") merged.outfit[k] = p.outfit[k];
+        }
+      }
+    }
+    return merged;
+  }
+
+  function saveProfile(profile){
+    localStorage.setItem(LS_PROFILE, JSON.stringify(profile));
+  }
+
   /***********************
    * DOM READY
    ***********************/
@@ -107,6 +186,9 @@
 
     // Main UI
     const bottleBtn = document.getElementById("bottleBtn");
+    const bottleWrap = document.getElementById("bottleWrap");
+    const bottleHintEl = document.getElementById("bottleHint");
+
     const undoBtn = document.getElementById("undoBtn");
 
     const clickCountEl = document.getElementById("clickCount");
@@ -127,6 +209,8 @@
     const historyBtn = document.getElementById("historyBtn");
     const reminderBtn = document.getElementById("reminderBtn");
     const chartBtn = document.getElementById("chartBtn");
+    const personaliseBtn = document.getElementById("personaliseBtn");
+    const settingsBtn = document.getElementById("settingsBtn");
     const closeMenuBtn = document.getElementById("closeMenuBtn");
 
     // History modal
@@ -134,6 +218,7 @@
     const closeHistoryBtn = document.getElementById("closeHistoryBtn");
     const historyList = document.getElementById("historyList");
     const historyEmpty = document.getElementById("historyEmpty");
+    const historySub = document.getElementById("historySub");
 
     // Reminder modal
     const reminderModal = document.getElementById("reminderModal");
@@ -153,16 +238,48 @@
     const chartDateSelect = document.getElementById("chartDateSelect");
     const chartCanvas = document.getElementById("chartCanvas");
     const chartTotalMl = document.getElementById("chartTotalMl");
+    const chartLegend = document.getElementById("chartLegend");
+
+    // Personalisation modal
+    const personaliseModal = document.getElementById("personaliseModal");
+    const closePersonaliseBtn = document.getElementById("closePersonaliseBtn");
+    const savePersonaliseBtn = document.getElementById("savePersonaliseBtn");
+    const resetPersonaliseBtn = document.getElementById("resetPersonaliseBtn");
+    const personaliseStatus = document.getElementById("personaliseStatus");
+
+    // Personal detail fields
+    const pWeight = document.getElementById("pWeight");
+    const pGender = document.getElementById("pGender");
+    const pActivity = document.getElementById("pActivity");
+    const pWeather = document.getElementById("pWeather");
+    const pCupMl = document.getElementById("pCupMl");
+
+    // Outfit selects
+    const cHeadwear = document.getElementById("cHeadwear");
+    const cFacewear = document.getElementById("cFacewear");
+    const cShirt = document.getElementById("cShirt");
+    const cBottoms = document.getElementById("cBottoms");
+    const cShoes = document.getElementById("cShoes");
+
+    // Settings modal
+    const settingsModal = document.getElementById("settingsModal");
+    const closeSettingsBtn = document.getElementById("closeSettingsBtn");
+    const darkModeToggle = document.getElementById("darkModeToggle");
 
     // Guard
     const required = [
-      bottleBtn, undoBtn, clickCountEl, mlCountEl, progressNowEl, progressGoalEl,
+      bottleBtn, bottleWrap, bottleHintEl, undoBtn,
+      clickCountEl, mlCountEl, progressNowEl, progressGoalEl,
       progressFillEl, progressHintEl, bottleWaterEl, streakCountEl, toastEl,
-      menuBtn, menuPanel, historyBtn, reminderBtn, chartBtn, closeMenuBtn,
-      historyModal, closeHistoryBtn, historyList, historyEmpty,
+      menuBtn, menuPanel, historyBtn, reminderBtn, chartBtn, personaliseBtn, settingsBtn, closeMenuBtn,
+      historyModal, closeHistoryBtn, historyList, historyEmpty, historySub,
       reminderModal, closeReminderBtn,
       minutesInput, startBtn, stopBtn, statusEl, notifToggle, ding,
-      chartModal, closeChartBtn, chartDateSelect, chartCanvas, chartTotalMl
+      chartModal, closeChartBtn, chartDateSelect, chartCanvas, chartTotalMl, chartLegend,
+      personaliseModal, closePersonaliseBtn, savePersonaliseBtn, resetPersonaliseBtn, personaliseStatus,
+      pWeight, pGender, pActivity, pWeather, pCupMl,
+      cHeadwear, cFacewear, cShirt, cBottoms, cShoes,
+      settingsModal, closeSettingsBtn, darkModeToggle
     ];
     if (required.some(x => !x)) {
       alert("Some elements are missing. Please replace index.html, style.css, and script.js exactly as provided.");
@@ -170,13 +287,56 @@
     }
 
     /***********************
+     * THEME INIT
+     ***********************/
+    function applyTheme(theme){
+      if (theme === "dark") document.body.classList.add("dark");
+      else document.body.classList.remove("dark");
+      darkModeToggle.checked = (theme === "dark");
+    }
+
+    let theme = loadTheme();
+    applyTheme(theme);
+
+    darkModeToggle.addEventListener("change", () => {
+      theme = darkModeToggle.checked ? "dark" : "light";
+      saveTheme(theme);
+      applyTheme(theme);
+      // Redraw chart if open so text contrasts better
+      if (chartModal.classList.contains("open")) drawChart(chartDateSelect.value);
+    });
+
+    /***********************
      * STATE
      ***********************/
     let events = pruneOldEvents(loadEvents());
     let dailyGoal = loadGoal();
 
-    let streak = loadStreak();               // starts at 0
-    let awardedDay = loadAwardedDay();       // day already awarded for
+    let streak = loadStreak();
+    let awardedDay = loadAwardedDay();
+
+    let profile = loadProfile();
+
+    function getCupMl(){
+      const cup = Number(profile.cupMl);
+      return [50,100,200].includes(cup) ? cup : 50;
+    }
+
+    function applyOutfitToBottle(){
+      bottleWrap.dataset.headwear = profile.outfit.headwear || "none";
+      bottleWrap.dataset.facewear = profile.outfit.facewear || "none";
+      bottleWrap.dataset.shirt = profile.outfit.shirt || "none";
+      bottleWrap.dataset.bottoms = profile.outfit.bottoms || "none";
+      bottleWrap.dataset.shoes = profile.outfit.shoes || "none";
+    }
+
+    function syncCupText(){
+      const cup = getCupMl();
+      bottleHintEl.textContent = `Click to log ${cup}ml`;
+      progressHintEl.textContent = `Tap the bottle to log ${cup}ml.`;
+      historySub.textContent = `Each entry logs the cup size chosen at that time. Current cup size: ${cup}ml.`;
+      chartLegend.textContent = `Each bar = total ml in that hour (based on your logged cup size at the time).`;
+    }
 
     /***********************
      * TOAST
@@ -192,12 +352,16 @@
     /***********************
      * COUNTS
      ***********************/
-    function countForDay(dayKey){
-      let c = 0;
-      for (const ts of events){
-        if (todayKey(new Date(ts)) === dayKey) c++;
+    function statsForDay(dayKey){
+      let clicks = 0;
+      let ml = 0;
+      for (const e of events){
+        if (todayKey(new Date(e.ts)) === dayKey){
+          clicks += 1;
+          ml += e.ml;
+        }
       }
-      return c;
+      return { clicks, ml };
     }
 
     /***********************
@@ -205,14 +369,9 @@
      ***********************/
     function maybeAwardStreakIfGoalReached(todayMl){
       const day = todayKey();
-
-      // already awarded today
       if (awardedDay === day) return;
-
-      // only award if goal reached today
       if (todayMl < dailyGoal) return;
 
-      // award once
       streak += 1;
       saveStreak(streak);
       streakCountEl.textContent = String(streak);
@@ -230,12 +389,10 @@
       events = pruneOldEvents(events);
       saveEvents(events);
 
-      // Always show streak
       streakCountEl.textContent = String(streak);
 
       const key = todayKey();
-      const clicks = countForDay(key);
-      const ml = clicks * ML_PER_CLICK;
+      const { clicks, ml } = statsForDay(key);
 
       clickCountEl.textContent = clicks;
       mlCountEl.textContent = ml;
@@ -243,7 +400,7 @@
       progressNowEl.textContent = ml;
       progressGoalEl.textContent = dailyGoal;
 
-      const p = clamp01(ml / dailyGoal);
+      const p = dailyGoal > 0 ? clamp01(ml / dailyGoal) : 0;
       const c = colorForProgress(p);
 
       progressFillEl.style.width = `${Math.round(p * 100)}%`;
@@ -254,46 +411,35 @@
 
       if (p >= 1) progressHintEl.textContent = "Goal reached 🎉 Keep it up!";
       else if (p >= 0.5) progressHintEl.textContent = "Nice! Halfway there.";
-      else if (p > 0) progressHintEl.textContent = "Good start — keep sipping.";
-      else progressHintEl.textContent = "Tap the bottle to log 50ml.";
+      else if (p > 0) progressHintEl.textContent = `Good start — keep sipping. (+${getCupMl()}ml per click)`;
+      else progressHintEl.textContent = `Tap the bottle to log ${getCupMl()}ml.`;
 
-      // Award streak if eligible
       maybeAwardStreakIfGoalReached(ml);
     }
 
     /***********************
-     * DAILY MIDNIGHT RESET (AUTO)
-     * - We don't delete history; we just force the UI to refresh at 00:00
-     * - Since "today" is computed by date, everything becomes 0 automatically.
+     * MIDNIGHT REFRESH
      ***********************/
     function scheduleMidnightRefresh(){
       const ms = msUntilNextMidnight();
       setTimeout(() => {
-        // new day → UI should show 0 today
         updateMainUI();
-
-        // also refresh chart date options so "today" is correct
         populateChartDates();
-
-        // schedule the next midnight again
         scheduleMidnightRefresh();
-      }, ms + 50); // small buffer
+      }, ms + 50);
     }
 
     /***********************
      * DRINK ACTIONS
      ***********************/
     function logDrinkNow(){
-      events.push(Date.now());
+      const cup = getCupMl();
+      events.push({ ts: Date.now(), ml: cup });
       updateMainUI();
     }
 
     function undoLast(){
       if (events.length === 0) return;
-
-      // If we undo after getting streak today, we DO NOT remove streak
-      // (streak is earned for the day once you reach goal).
-      // If you want "streak revoked if you undo below goal", tell me and I can change it.
       events.pop();
       updateMainUI();
     }
@@ -304,11 +450,11 @@
     function renderHistory(){
       events = pruneOldEvents(events);
 
-      const map = new Map(); // dateKey -> timestamps
-      for (const ts of events){
-        const k = todayKey(new Date(ts));
+      const map = new Map();
+      for (const e of events){
+        const k = todayKey(new Date(e.ts));
         if (!map.has(k)) map.set(k, []);
-        map.get(k).push(ts);
+        map.get(k).push(e);
       }
 
       const days = Array.from(map.keys()).sort((a,b) => (a < b ? 1 : -1));
@@ -321,8 +467,8 @@
       historyEmpty.style.display = "none";
 
       for (const day of days){
-        const entries = map.get(day).sort((a,b) => a - b);
-        const totalMl = entries.length * ML_PER_CLICK;
+        const entries = map.get(day).sort((a,b) => a.ts - b.ts);
+        const totalMl = entries.reduce((sum, e) => sum + e.ml, 0);
 
         const group = document.createElement("div");
         group.className = "dayGroup";
@@ -343,15 +489,15 @@
         const chips = document.createElement("div");
         chips.className = "dayEntries";
 
-        for (const ts of entries){
-          const d = new Date(ts);
+        for (const e of entries){
+          const d = new Date(e.ts);
           const hh = String(d.getHours()).padStart(2,"0");
           const mm = String(d.getMinutes()).padStart(2,"0");
           const ss = String(d.getSeconds()).padStart(2,"0");
 
           const chip = document.createElement("div");
           chip.className = "timeChip";
-          chip.textContent = `${hh}:${mm}:${ss}`;
+          chip.textContent = `${hh}:${mm}:${ss} • ${e.ml}ml`;
           chips.appendChild(chip);
         }
 
@@ -389,10 +535,10 @@
 
     function hourlyMlForDay(dayKey){
       const buckets = new Array(24).fill(0);
-      for (const ts of events){
-        const d = new Date(ts);
+      for (const e of events){
+        const d = new Date(e.ts);
         if (todayKey(d) !== dayKey) continue;
-        buckets[d.getHours()] += ML_PER_CLICK;
+        buckets[d.getHours()] += e.ml;
       }
       return buckets;
     }
@@ -413,15 +559,21 @@
       const innerW = W - padL - padR;
       const innerH = H - padT - padB;
 
+      // Choose contrasting label colors by theme (simple)
+      const isDark = document.body.classList.contains("dark");
+      const axis = isDark ? "rgba(255,255,255,0.28)" : "rgba(0,0,0,0.25)";
+      const text = isDark ? "rgba(255,255,255,0.78)" : "rgba(0,0,0,0.65)";
+      const title = isDark ? "rgba(255,255,255,0.86)" : "rgba(0,0,0,0.80)";
+
       ctx.lineWidth = 1;
-      ctx.strokeStyle = "rgba(0,0,0,0.18)";
+      ctx.strokeStyle = axis;
       ctx.beginPath();
       ctx.moveTo(padL, padT);
       ctx.lineTo(padL, padT + innerH);
       ctx.lineTo(padL + innerW, padT + innerH);
       ctx.stroke();
 
-      ctx.fillStyle = "rgba(0,0,0,0.55)";
+      ctx.fillStyle = text;
       ctx.font = "700 12px system-ui";
       ctx.fillText("0", 10, padT + innerH + 4);
       ctx.fillText(String(Math.round(maxVal/2)), 10, padT + innerH/2 + 4);
@@ -430,7 +582,7 @@
       const barGap = 6;
       const barW = (innerW - barGap * 23) / 24;
 
-      const p = clamp01(total / dailyGoal);
+      const p = dailyGoal > 0 ? clamp01(total / dailyGoal) : 0;
       const barColor = colorForProgress(p);
 
       for (let hr = 0; hr < 24; hr++){
@@ -445,14 +597,14 @@
 
         if (hr % 3 === 0){
           ctx.globalAlpha = 1;
-          ctx.fillStyle = "rgba(0,0,0,0.55)";
+          ctx.fillStyle = text;
           ctx.font = "800 11px system-ui";
           ctx.fillText(String(hr), x + 2, padT + innerH + 28);
         }
       }
 
       ctx.globalAlpha = 1;
-      ctx.fillStyle = "rgba(0,0,0,0.75)";
+      ctx.fillStyle = title;
       ctx.font = "900 14px system-ui";
       ctx.fillText(`Hourly intake (ml) — ${dayKey}`, padL, 14);
     }
@@ -487,9 +639,7 @@
     /***********************
      * REMINDER LOGIC
      ***********************/
-    function setStatus(text){
-      statusEl.textContent = text;
-    }
+    function setStatus(text){ statusEl.textContent = text; }
 
     async function maybeRequestNotifications() {
       if (!notifToggle.checked) return;
@@ -512,10 +662,81 @@
     function remind() {
       alert("💧 Time to drink water!");
       ding.play().catch(() => {});
-
       if (notifToggle.checked && "Notification" in window && Notification.permission === "granted") {
         new Notification("💧 Drink water", { body: "Take a few sips now." });
       }
+    }
+
+    /***********************
+     * PERSONALISATION
+     ***********************/
+    function populatePersonaliseForm(){
+      pWeight.value = profile.weightKg ? String(profile.weightKg) : "";
+      pGender.value = profile.gender || "unspecified";
+      pActivity.value = profile.activity || "sedentary";
+      pWeather.value = profile.weather || "normal";
+      pCupMl.value = String(getCupMl());
+
+      cHeadwear.value = profile.outfit.headwear || "none";
+      cFacewear.value = profile.outfit.facewear || "none";
+      cShirt.value = profile.outfit.shirt || "none";
+      cBottoms.value = profile.outfit.bottoms || "none";
+      cShoes.value = profile.outfit.shoes || "none";
+    }
+
+    function applyLiveOutfitFromSelects(){
+      profile.outfit.headwear = cHeadwear.value;
+      profile.outfit.facewear = cFacewear.value;
+      profile.outfit.shirt = cShirt.value;
+      profile.outfit.bottoms = cBottoms.value;
+      profile.outfit.shoes = cShoes.value;
+      applyOutfitToBottle();
+    }
+
+    function applyLiveCupFromSelect(){
+      const cup = Number(pCupMl.value);
+      profile.cupMl = [50,100,200].includes(cup) ? cup : 50;
+      syncCupText();
+      updateMainUI();
+    }
+
+    function savePersonalisation(){
+      // Basic validation (not strict)
+      const w = pWeight.value.trim();
+      profile.weightKg = w ? w : "";
+
+      profile.gender = pGender.value;
+      profile.activity = pActivity.value;
+      profile.weather = pWeather.value;
+
+      const cup = Number(pCupMl.value);
+      profile.cupMl = [50,100,200].includes(cup) ? cup : 50;
+
+      profile.outfit.headwear = cHeadwear.value;
+      profile.outfit.facewear = cFacewear.value;
+      profile.outfit.shirt = cShirt.value;
+      profile.outfit.bottoms = cBottoms.value;
+      profile.outfit.shoes = cShoes.value;
+
+      saveProfile(profile);
+      personaliseStatus.textContent = "Saved ✅";
+      showToast("Saved personalisation ✅");
+
+      applyOutfitToBottle();
+      syncCupText();
+      updateMainUI();
+      if (chartModal.classList.contains("open")) drawChart(chartDateSelect.value);
+    }
+
+    function resetPersonalisation(){
+      profile = structuredClone(DEFAULT_PROFILE);
+      saveProfile(profile);
+      populatePersonaliseForm();
+      applyOutfitToBottle();
+      syncCupText();
+      updateMainUI();
+      personaliseStatus.textContent = "Reset to defaults";
+      showToast("Personalisation reset");
     }
 
     /***********************
@@ -545,15 +766,31 @@
       openModal(chartModal);
     });
 
+    personaliseBtn.addEventListener("click", () => {
+      closeMenu();
+      populatePersonaliseForm();
+      personaliseStatus.textContent = "Edit your preferences, then Save";
+      openModal(personaliseModal);
+    });
+
+    settingsBtn.addEventListener("click", () => {
+      closeMenu();
+      openModal(settingsModal);
+    });
+
     // Close buttons
     closeHistoryBtn.addEventListener("click", () => closeModal(historyModal));
     closeReminderBtn.addEventListener("click", () => closeModal(reminderModal));
     closeChartBtn.addEventListener("click", () => closeModal(chartModal));
+    closePersonaliseBtn.addEventListener("click", () => closeModal(personaliseModal));
+    closeSettingsBtn.addEventListener("click", () => closeModal(settingsModal));
 
     // Close by clicking overlay
     historyModal.addEventListener("click", (e) => { if (e.target === historyModal) closeModal(historyModal); });
     reminderModal.addEventListener("click", (e) => { if (e.target === reminderModal) closeModal(reminderModal); });
     chartModal.addEventListener("click", (e) => { if (e.target === chartModal) closeModal(chartModal); });
+    personaliseModal.addEventListener("click", (e) => { if (e.target === personaliseModal) closeModal(personaliseModal); });
+    settingsModal.addEventListener("click", (e) => { if (e.target === settingsModal) closeModal(settingsModal); });
 
     // Close menu outside click
     document.addEventListener("click", (e) => {
@@ -569,10 +806,11 @@
         closeModal(historyModal);
         closeModal(reminderModal);
         closeModal(chartModal);
+        closeModal(personaliseModal);
+        closeModal(settingsModal);
       }
     });
 
-    // Chart date change
     chartDateSelect.addEventListener("change", () => drawChart(chartDateSelect.value));
 
     // Reminder start/stop
@@ -604,9 +842,26 @@
       minutesInput.disabled = false;
     });
 
+    // Personalisation live preview
+    cHeadwear.addEventListener("change", applyLiveOutfitFromSelects);
+    cFacewear.addEventListener("change", applyLiveOutfitFromSelects);
+    cShirt.addEventListener("change", applyLiveOutfitFromSelects);
+    cBottoms.addEventListener("change", applyLiveOutfitFromSelects);
+    cShoes.addEventListener("change", applyLiveOutfitFromSelects);
+
+    pCupMl.addEventListener("change", applyLiveCupFromSelect);
+
+    savePersonaliseBtn.addEventListener("click", savePersonalisation);
+    resetPersonaliseBtn.addEventListener("click", resetPersonalisation);
+
     /***********************
      * INIT
      ***********************/
+    // Apply saved personalisation to bottle and text
+    applyOutfitToBottle();
+    syncCupText();
+
+    // Initial UI
     updateMainUI();
     scheduleMidnightRefresh();
   });

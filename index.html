@@ -18,6 +18,8 @@
         <button id="historyBtn" class="menuItem" type="button">History (30 days)</button>
         <button id="reminderBtn" class="menuItem" type="button">Water reminder</button>
         <button id="chartBtn" class="menuItem" type="button">Drinking chart</button>
+        <button id="personaliseBtn" class="menuItem" type="button">Personalisation</button>
+        <button id="settingsBtn" class="menuItem" type="button">Settings</button>
         <button id="closeMenuBtn" class="menuItem subtle" type="button">Close</button>
       </div>
     </header>
@@ -63,14 +65,49 @@
 
       <!-- Bottle -->
       <button id="bottleBtn" class="bottleBtn" aria-label="Drink water" type="button">
-        <div class="bottleWrap">
+        <div id="bottleWrap" class="bottleWrap"
+             data-headwear="none"
+             data-facewear="none"
+             data-shirt="none"
+             data-bottoms="none"
+             data-shoes="none">
           <div class="bottleCap"></div>
+
           <div class="bottleBody">
             <div id="bottleWater" class="bottleWater"></div>
             <div class="bottleGloss"></div>
           </div>
+
+          <!-- Accessories (simple shapes) -->
+          <div class="accLayer">
+            <!-- Headwear -->
+            <div class="acc acc-headwear cap"></div>
+            <div class="acc acc-headwear beanie"></div>
+            <div class="acc acc-headwear crown"></div>
+
+            <!-- Facewear -->
+            <div class="acc acc-facewear glasses"></div>
+            <div class="acc acc-facewear mask"></div>
+            <div class="acc acc-facewear visor"></div>
+
+            <!-- Shirt -->
+            <div class="acc acc-shirt tee"></div>
+            <div class="acc acc-shirt hoodie"></div>
+            <div class="acc acc-shirt jacket"></div>
+
+            <!-- Bottoms -->
+            <div class="acc acc-bottoms shorts"></div>
+            <div class="acc acc-bottoms jeans"></div>
+            <div class="acc acc-bottoms skirt"></div>
+
+            <!-- Shoes -->
+            <div class="acc acc-shoes sneakers"></div>
+            <div class="acc acc-shoes boots"></div>
+            <div class="acc acc-shoes sandals"></div>
+          </div>
         </div>
-        <div class="bottleHint">Click to log 50ml</div>
+
+        <div id="bottleHint" class="bottleHint">Click to log 50ml</div>
       </button>
     </main>
 
@@ -86,7 +123,7 @@
       <div class="modalHeader">
         <div>
           <div class="modalTitle">History (last 30 days)</div>
-          <div class="modalSub">Each entry is one bottle click (50ml).</div>
+          <div class="modalSub" id="historySub">Each entry is one bottle click.</div>
         </div>
         <button id="closeHistoryBtn" class="iconBtn" type="button" aria-label="Close history">✕</button>
       </div>
@@ -138,7 +175,7 @@
       <div class="modalHeader">
         <div>
           <div class="modalTitle">📊 Drinking chart</div>
-          <div class="modalSub">Shows how much you drank each hour.</div>
+          <div class="modalSub" id="chartSub">Shows how much you drank each hour.</div>
         </div>
         <button id="closeChartBtn" class="iconBtn" type="button" aria-label="Close chart">✕</button>
       </div>
@@ -156,8 +193,173 @@
           <canvas id="chartCanvas" width="900" height="360"></canvas>
         </div>
 
-        <div class="chartLegend">
-          Each bar = total ml in that hour (50ml per click).
+        <div class="chartLegend" id="chartLegend">
+          Each bar = total ml in that hour.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Personalisation modal -->
+  <div id="personaliseModal" class="modalOverlay" aria-hidden="true">
+    <div class="modal">
+      <div class="modalHeader">
+        <div>
+          <div class="modalTitle">✨ Personalisation</div>
+          <div class="modalSub">Customize your details, cup size, and bottle outfit.</div>
+        </div>
+        <button id="closePersonaliseBtn" class="iconBtn" type="button" aria-label="Close personalisation">✕</button>
+      </div>
+
+      <div class="modalBody">
+        <div class="personaliseGrid">
+
+          <section class="cardSection">
+            <div class="sectionTitle">1) Personal details</div>
+
+            <div class="formGrid">
+              <label class="field">
+                Weight (kg)
+                <input id="pWeight" type="number" min="1" placeholder="e.g., 70" />
+              </label>
+
+              <label class="field">
+                Gender
+                <select id="pGender">
+                  <option value="unspecified">Prefer not to say</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                </select>
+              </label>
+
+              <label class="field">
+                Activity level
+                <select id="pActivity">
+                  <option value="sedentary">Sedentary</option>
+                  <option value="semi_active">Semi active</option>
+                  <option value="active">Active</option>
+                </select>
+              </label>
+
+              <label class="field">
+                Weather
+                <select id="pWeather">
+                  <option value="normal">Normal</option>
+                  <option value="hot">Hot</option>
+                  <option value="cold">Cold</option>
+                </select>
+              </label>
+
+              <label class="field">
+                Cup size per click (ml)
+                <select id="pCupMl">
+                  <option value="50">50 ml</option>
+                  <option value="100">100 ml</option>
+                  <option value="200">200 ml</option>
+                </select>
+              </label>
+
+              <div class="hintBox">
+                Cup size changes how much you log per bottle click (and affects charts/history going forward).
+              </div>
+            </div>
+          </section>
+
+          <section class="cardSection">
+            <div class="sectionTitle">2) Bottle customisation</div>
+
+            <div class="formGrid">
+              <label class="field">
+                Headwear
+                <select id="cHeadwear">
+                  <option value="none">None</option>
+                  <option value="cap">Cap</option>
+                  <option value="beanie">Beanie</option>
+                  <option value="crown">Crown</option>
+                </select>
+              </label>
+
+              <label class="field">
+                Facewear
+                <select id="cFacewear">
+                  <option value="none">None</option>
+                  <option value="glasses">Glasses</option>
+                  <option value="mask">Mask</option>
+                  <option value="visor">Visor</option>
+                </select>
+              </label>
+
+              <label class="field">
+                Shirts
+                <select id="cShirt">
+                  <option value="none">None</option>
+                  <option value="tee">Tee</option>
+                  <option value="hoodie">Hoodie</option>
+                  <option value="jacket">Jacket</option>
+                </select>
+              </label>
+
+              <label class="field">
+                Bottoms
+                <select id="cBottoms">
+                  <option value="none">None</option>
+                  <option value="shorts">Shorts</option>
+                  <option value="jeans">Jeans</option>
+                  <option value="skirt">Skirt</option>
+                </select>
+              </label>
+
+              <label class="field">
+                Shoes
+                <select id="cShoes">
+                  <option value="none">None</option>
+                  <option value="sneakers">Sneakers</option>
+                  <option value="boots">Boots</option>
+                  <option value="sandals">Sandals</option>
+                </select>
+              </label>
+
+              <div class="hintBox">
+                Your selections appear on the bottle icon immediately. One item per category.
+              </div>
+            </div>
+          </section>
+
+          <div class="row">
+            <button id="savePersonaliseBtn" type="button">Save</button>
+            <button id="resetPersonaliseBtn" type="button" class="softBtn">Reset</button>
+          </div>
+
+          <div class="status" id="personaliseStatus">Not saved yet</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Settings modal -->
+  <div id="settingsModal" class="modalOverlay" aria-hidden="true">
+    <div class="modal">
+      <div class="modalHeader">
+        <div>
+          <div class="modalTitle">⚙️ Settings</div>
+          <div class="modalSub">Customize your experience.</div>
+        </div>
+        <button id="closeSettingsBtn" class="iconBtn" type="button" aria-label="Close settings">✕</button>
+      </div>
+
+      <div class="modalBody">
+        <div class="settingsCard">
+          <div class="settingRow">
+            <div class="settingText">
+              <div class="settingTitle">Dark mode</div>
+              <div class="settingSub">Switch between light and dark theme.</div>
+            </div>
+
+            <label class="switch" aria-label="Toggle dark mode">
+              <input id="darkModeToggle" type="checkbox" />
+              <span class="slider"></span>
+            </label>
+          </div>
         </div>
       </div>
     </div>

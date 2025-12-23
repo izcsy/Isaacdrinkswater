@@ -1,6 +1,7 @@
 * { box-sizing: border-box; }
 
 :root{
+  /* Light theme */
   --bg: #f4f7ff;
   --card: #ffffff;
   --ink: #111827;
@@ -8,6 +9,23 @@
   --blue: #2d6cff;
   --shadow: 0 10px 30px rgba(0,0,0,0.08);
   --line: #e6e6e6;
+
+  --overlay: rgba(0,0,0,0.35);
+  --toastBg: rgba(17,24,39,0.95);
+}
+
+body.dark{
+  /* Dark theme */
+  --bg: #0b1220;
+  --card: #0f172a;
+  --ink: #e5e7eb;
+  --muted: #a1a1aa;
+  --blue: #60a5fa;
+  --shadow: 0 10px 30px rgba(0,0,0,0.45);
+  --line: rgba(255,255,255,0.10);
+
+  --overlay: rgba(0,0,0,0.55);
+  --toastBg: rgba(15,23,42,0.95);
 }
 
 body{
@@ -46,6 +64,7 @@ body{
   cursor:pointer;
   font-size: 20px;
   font-weight: 900;
+  color: var(--ink);
 }
 
 .menuPanel{
@@ -72,8 +91,9 @@ body{
   background: transparent;
   cursor:pointer;
   font-weight: 900;
+  color: var(--ink);
 }
-.menuItem:hover{ background: rgba(45,108,255,0.08); }
+.menuItem:hover{ background: rgba(96,165,250,0.12); }
 .menuItem.subtle{ color: var(--muted); }
 
 /* Left panel */
@@ -115,6 +135,7 @@ body{
   box-shadow: var(--shadow);
   cursor:pointer;
   font-weight: 950;
+  color: var(--ink);
 }
 .undoBtn:active{ transform: translateY(1px); }
 
@@ -166,16 +187,20 @@ body{
   border-radius: 999px;
   padding: 6px 10px;
   font-weight: 950;
+  color: var(--ink);
 }
+body.dark .streakBadge{ background: rgba(255,255,255,0.03); }
+
 .streakIcon{ font-size: 16px; }
 
 .progressBar{
   margin-top: 10px;
   height: 12px;
   border-radius: 999px;
-  background: rgba(0,0,0,0.08);
+  background: rgba(0,0,0,0.10);
   overflow:hidden;
 }
+body.dark .progressBar{ background: rgba(255,255,255,0.10); }
 
 .progressFill{
   height: 100%;
@@ -202,6 +227,7 @@ body{
   align-items: center;
   gap: 10px;
   padding: 10px;
+  color: var(--ink);
 }
 .bottleBtn:active{ transform: translateY(2px) scale(0.99); }
 
@@ -223,6 +249,11 @@ body{
   background: rgba(0,0,0,0.10);
   border: 1px solid rgba(0,0,0,0.12);
 }
+body.dark .bottleCap{
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
 .bottleBody{
   position:absolute;
   top: 24px;
@@ -236,6 +267,11 @@ body{
   overflow:hidden;
   box-shadow: none;
 }
+body.dark .bottleBody{
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.12);
+}
+
 .bottleWater{
   position:absolute;
   left:0;
@@ -255,6 +291,205 @@ body{
   background: rgba(255,255,255,0.55);
   opacity: 0.7;
 }
+body.dark .bottleGloss{ opacity: 0.35; }
+
+/* Accessories layer */
+.accLayer{
+  position:absolute;
+  inset: 0;
+  pointer-events:none;
+}
+
+.acc{
+  position:absolute;
+  display:none; /* shown via data-attributes */
+  border: 1px solid rgba(0,0,0,0.15);
+}
+body.dark .acc{ border: 1px solid rgba(255,255,255,0.14); }
+
+/* ===== Headwear ===== */
+.acc-headwear{ left: 50%; transform: translateX(-50%); top: 2px; }
+
+.acc-headwear.cap{
+  width: 86px; height: 26px;
+  border-radius: 999px;
+  background: rgba(45,108,255,0.18);
+}
+.acc-headwear.cap::after{
+  content:"";
+  position:absolute;
+  left: 10px; bottom: -7px;
+  width: 50px; height: 14px;
+  border-radius: 999px;
+  background: rgba(45,108,255,0.18);
+  border: 1px solid rgba(0,0,0,0.12);
+}
+body.dark .acc-headwear.cap::after{ border: 1px solid rgba(255,255,255,0.12); }
+
+.acc-headwear.beanie{
+  width: 78px; height: 30px;
+  border-radius: 18px 18px 14px 14px;
+  background: rgba(245,158,11,0.18);
+}
+.acc-headwear.beanie::after{
+  content:"";
+  position:absolute;
+  left: 50%; top: -10px;
+  transform: translateX(-50%);
+  width: 18px; height: 18px;
+  border-radius: 999px;
+  background: rgba(245,158,11,0.18);
+  border: 1px solid rgba(0,0,0,0.12);
+}
+body.dark .acc-headwear.beanie::after{ border: 1px solid rgba(255,255,255,0.12); }
+
+.acc-headwear.crown{
+  width: 84px; height: 28px;
+  background: rgba(234,179,8,0.20);
+  clip-path: polygon(0% 100%, 10% 40%, 25% 100%, 40% 35%, 55% 100%, 70% 40%, 85% 100%, 100% 100%, 100% 0%, 0% 0%);
+  border-radius: 10px;
+}
+
+/* ===== Facewear ===== */
+.acc-facewear{ left: 50%; transform: translateX(-50%); top: 86px; }
+
+.acc-facewear.glasses{
+  width: 98px; height: 20px;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.06);
+}
+body.dark .acc-facewear.glasses{ background: rgba(255,255,255,0.08); }
+.acc-facewear.glasses::before,
+.acc-facewear.glasses::after{
+  content:"";
+  position:absolute;
+  top: 3px;
+  width: 34px; height: 14px;
+  border-radius: 10px;
+  background: rgba(45,108,255,0.14);
+  border: 1px solid rgba(0,0,0,0.12);
+}
+body.dark .acc-facewear.glasses::before,
+body.dark .acc-facewear.glasses::after{ border: 1px solid rgba(255,255,255,0.12); }
+.acc-facewear.glasses::before{ left: 10px; }
+.acc-facewear.glasses::after{ right: 10px; }
+
+.acc-facewear.mask{
+  width: 96px; height: 30px;
+  border-radius: 16px;
+  background: rgba(45,108,255,0.12);
+  top: 98px;
+}
+
+.acc-facewear.visor{
+  width: 104px; height: 22px;
+  border-radius: 999px;
+  background: rgba(34,197,94,0.12);
+  top: 70px;
+}
+
+/* ===== Shirt ===== */
+.acc-shirt{ left: 50%; transform: translateX(-50%); top: 108px; }
+
+.acc-shirt.tee{
+  width: 118px; height: 44px;
+  border-radius: 18px;
+  background: rgba(45,108,255,0.10);
+}
+
+.acc-shirt.hoodie{
+  width: 122px; height: 52px;
+  border-radius: 20px;
+  background: rgba(245,158,11,0.12);
+}
+.acc-shirt.hoodie::after{
+  content:"";
+  position:absolute;
+  left: 50%; top: -14px;
+  transform: translateX(-50%);
+  width: 64px; height: 24px;
+  border-radius: 18px 18px 12px 12px;
+  background: rgba(245,158,11,0.12);
+  border: 1px solid rgba(0,0,0,0.12);
+}
+body.dark .acc-shirt.hoodie::after{ border: 1px solid rgba(255,255,255,0.12); }
+
+.acc-shirt.jacket{
+  width: 124px; height: 54px;
+  border-radius: 22px;
+  background: rgba(0,0,0,0.06);
+}
+body.dark .acc-shirt.jacket{ background: rgba(255,255,255,0.08); }
+
+/* ===== Bottoms ===== */
+.acc-bottoms{ left: 50%; transform: translateX(-50%); top: 154px; }
+
+.acc-bottoms.shorts{
+  width: 114px; height: 32px;
+  border-radius: 16px;
+  background: rgba(34,197,94,0.12);
+}
+
+.acc-bottoms.jeans{
+  width: 116px; height: 44px;
+  border-radius: 18px;
+  background: rgba(45,108,255,0.14);
+}
+
+.acc-bottoms.skirt{
+  width: 110px; height: 44px;
+  background: rgba(244,63,94,0.10);
+  clip-path: polygon(12% 0%, 88% 0%, 100% 100%, 0% 100%);
+  border-radius: 16px;
+}
+
+/* ===== Shoes ===== */
+.acc-shoes{ left: 50%; transform: translateX(-50%); top: 196px; border: 0; }
+
+.acc-shoes.sneakers{
+  width: 128px; height: 18px;
+  border-radius: 999px;
+  background: rgba(45,108,255,0.18);
+  border: 1px solid rgba(0,0,0,0.12);
+}
+body.dark .acc-shoes.sneakers{ border: 1px solid rgba(255,255,255,0.12); }
+
+.acc-shoes.boots{
+  width: 120px; height: 22px;
+  border-radius: 12px;
+  background: rgba(120,53,15,0.12);
+  border: 1px solid rgba(0,0,0,0.12);
+}
+body.dark .acc-shoes.boots{ border: 1px solid rgba(255,255,255,0.12); }
+
+.acc-shoes.sandals{
+  width: 124px; height: 18px;
+  border-radius: 12px;
+  background: rgba(245,158,11,0.14);
+  border: 1px dashed rgba(0,0,0,0.22);
+}
+body.dark .acc-shoes.sandals{ border: 1px dashed rgba(255,255,255,0.18); }
+
+/* Show selected accessories based on bottleWrap data attrs */
+.bottleWrap[data-headwear="cap"] .acc-headwear.cap{ display:block; }
+.bottleWrap[data-headwear="beanie"] .acc-headwear.beanie{ display:block; }
+.bottleWrap[data-headwear="crown"] .acc-headwear.crown{ display:block; }
+
+.bottleWrap[data-facewear="glasses"] .acc-facewear.glasses{ display:block; }
+.bottleWrap[data-facewear="mask"] .acc-facewear.mask{ display:block; }
+.bottleWrap[data-facewear="visor"] .acc-facewear.visor{ display:block; }
+
+.bottleWrap[data-shirt="tee"] .acc-shirt.tee{ display:block; }
+.bottleWrap[data-shirt="hoodie"] .acc-shirt.hoodie{ display:block; }
+.bottleWrap[data-shirt="jacket"] .acc-shirt.jacket{ display:block; }
+
+.bottleWrap[data-bottoms="shorts"] .acc-bottoms.shorts{ display:block; }
+.bottleWrap[data-bottoms="jeans"] .acc-bottoms.jeans{ display:block; }
+.bottleWrap[data-bottoms="skirt"] .acc-bottoms.skirt{ display:block; }
+
+.bottleWrap[data-shoes="sneakers"] .acc-shoes.sneakers{ display:block; }
+.bottleWrap[data-shoes="boots"] .acc-shoes.boots{ display:block; }
+.bottleWrap[data-shoes="sandals"] .acc-shoes.sandals{ display:block; }
 
 /* Toast */
 .toast{
@@ -262,7 +497,7 @@ body{
   left: 50%;
   bottom: 18px;
   transform: translateX(-50%);
-  background: rgba(17,24,39,0.95);
+  background: var(--toastBg);
   color: white;
   padding: 12px 14px;
   border-radius: 14px;
@@ -282,7 +517,7 @@ body{
 .modalOverlay{
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.35);
+  background: var(--overlay);
   display:none;
   z-index: 1000;
   padding: 18px;
@@ -327,6 +562,7 @@ body{
   font-weight: 950;
   display:grid;
   place-items:center;
+  color: var(--ink);
 }
 .iconBtn:active{ transform: translateY(1px); }
 
@@ -349,6 +585,8 @@ body{
   padding: 10px 12px;
   background: rgba(0,0,0,0.02);
 }
+body.dark .dayGroup{ background: rgba(255,255,255,0.03); }
+
 .dayTitle{
   font-weight: 950;
   margin-bottom: 6px;
@@ -364,7 +602,7 @@ body{
   border-radius: 999px;
   padding: 6px 10px;
   font-weight: 950;
-  color: #374151;
+  color: var(--ink);
   font-size: 12px;
 }
 
@@ -372,16 +610,21 @@ body{
 .reminderCard{ width: min(640px, 100%); margin: 0 auto; padding: 4px 0 0; }
 .remLabel{ display:block; margin: 10px 0 12px; font-weight: 900; }
 
-input[type="number"]{
+input[type="number"], select{
   width:100%;
   padding: 12px 12px;
   border-radius: 14px;
-  border: 1px solid #ddd;
+  border: 1px solid rgba(0,0,0,0.15);
   margin-top: 8px;
-  font-size: 18px;
+  font-size: 16px;
+  background: var(--card);
+  color: var(--ink);
+}
+body.dark input[type="number"], body.dark select{
+  border: 1px solid rgba(255,255,255,0.14);
 }
 
-.row{ display:flex; gap: 12px; margin-top: 12px; }
+.row{ display:flex; gap: 12px; margin-top: 12px; flex-wrap: wrap; }
 
 #startBtn, #stopBtn{
   padding: 14px 16px;
@@ -392,8 +635,11 @@ input[type="number"]{
   font-size: 18px;
   flex:1;
 }
+
 #startBtn{ background: var(--blue); color:#fff; }
-#stopBtn{ background: #eee; }
+#stopBtn{ background: rgba(0,0,0,0.08); color: var(--ink); }
+body.dark #stopBtn{ background: rgba(255,255,255,0.08); }
+
 button:disabled{ opacity: 0.6; cursor:not-allowed; }
 
 .checkbox{
@@ -424,21 +670,142 @@ button:disabled{ opacity: 0.6; cursor:not-allowed; }
   margin-left: 10px;
   padding: 10px 12px;
   border-radius: 12px;
-  border: 1px solid #ddd;
+  border: 1px solid rgba(0,0,0,0.15);
   font-weight: 900;
+  background: var(--card);
+  color: var(--ink);
 }
+body.dark .chartSelect{ border: 1px solid rgba(255,255,255,0.14); }
+
 .chartTotal{ font-weight: 950; color: var(--blue); }
 .chartCard{
   border: 1px solid var(--line);
   background: rgba(0,0,0,0.02);
   border-radius: 16px;
   padding: 12px;
+  overflow:auto;
 }
+body.dark .chartCard{ background: rgba(255,255,255,0.03); }
+
 .chartLegend{
   margin-top: 10px;
   color: var(--muted);
   font-weight: 850;
   font-size: 13px;
+}
+
+/* Settings */
+.settingsCard{
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 14px;
+  background: rgba(0,0,0,0.02);
+}
+body.dark .settingsCard{ background: rgba(255,255,255,0.03); }
+
+.settingRow{
+  display:flex;
+  align-items:center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.settingTitle{ font-weight: 950; }
+.settingSub{ margin-top: 2px; color: var(--muted); font-weight: 800; font-size: 13px; }
+
+/* Switch */
+.switch{
+  position: relative;
+  display: inline-block;
+  width: 52px;
+  height: 30px;
+}
+.switch input{ display:none; }
+
+.slider{
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.18);
+  border-radius: 999px;
+  transition: 200ms ease;
+  border: 1px solid var(--line);
+}
+body.dark .slider{ background: rgba(255,255,255,0.16); }
+
+.slider:before{
+  position: absolute;
+  content: "";
+  height: 22px;
+  width: 22px;
+  left: 4px;
+  top: 3px;
+  background: var(--card);
+  border-radius: 999px;
+  transition: 200ms ease;
+  border: 1px solid var(--line);
+}
+
+.switch input:checked + .slider{
+  background: rgba(96,165,250,0.35);
+}
+.switch input:checked + .slider:before{
+  transform: translateX(22px);
+}
+
+/* Personalisation layout */
+.personaliseGrid{ display:flex; flex-direction: column; gap: 14px; }
+.cardSection{
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 14px;
+  background: rgba(0,0,0,0.02);
+}
+body.dark .cardSection{ background: rgba(255,255,255,0.03); }
+
+.sectionTitle{ font-weight: 950; margin-bottom: 10px; }
+
+.formGrid{
+  display:grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.field{
+  font-weight: 900;
+  display:flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.hintBox{
+  grid-column: 1 / -1;
+  color: var(--muted);
+  font-weight: 850;
+  font-size: 13px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px dashed var(--line);
+}
+
+.softBtn{
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 1px solid var(--line);
+  background: transparent;
+  font-weight: 950;
+  cursor:pointer;
+  flex: 1;
+}
+#savePersonaliseBtn{
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: 0;
+  background: var(--blue);
+  color: #fff;
+  font-weight: 950;
+  cursor:pointer;
+  flex: 1;
 }
 
 /* Mobile */
@@ -457,4 +824,6 @@ button:disabled{ opacity: 0.6; cursor:not-allowed; }
   .stat{ flex: 1; min-width: 160px; }
   .undoBtn{ width:100%; }
   .centerArea{ grid-column: 1; grid-row: 3; }
+
+  .formGrid{ grid-template-columns: 1fr; }
 }

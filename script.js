@@ -2,12 +2,12 @@
   const DEFAULT_DAILY_GOAL = 2000;
   const HISTORY_DAYS = 30;
 
-  const LS_EVENTS = "water_events_v4"; // [{ts, ml}]
+  const LS_EVENTS = "water_events_v5";
   const LS_GOAL = "water_goal_v3";
   const LS_STREAK = "water_streak_v1";
   const LS_AWARDED_DAY = "water_streak_awarded_day_v1";
   const LS_THEME = "water_theme_v1";
-  const LS_PROFILE = "water_profile_v1";
+  const LS_PROFILE = "water_profile_v2";
 
   const DEFAULT_PROFILE = {
     weightKg: "",
@@ -22,6 +22,41 @@
       bottoms: "none",
       shoes: "none",
     }
+  };
+
+  const ASSETS = {
+    cap: "assets/cap.png",
+    sunglasses: "assets/sunglasses.png",
+    shirt: "assets/shirt.png",
+    jeans: "assets/jeans.png",
+    boots: "assets/boots.png",
+  };
+
+  const VARIANT_TO_BASE = {
+    // headwear
+    cap_blue: "cap",
+    cap_red: "cap",
+    cap_black: "cap",
+
+    // facewear
+    shades_black: "sunglasses",
+    shades_blue: "sunglasses",
+    shades_gold: "sunglasses",
+
+    // shirts
+    tee_black: "shirt",
+    tee_white: "shirt",
+    tee_blue: "shirt",
+
+    // bottoms
+    jeans_light: "jeans",
+    jeans_dark: "jeans",
+    jeans_black: "jeans",
+
+    // shoes
+    boots_yellow: "boots",
+    boots_black: "boots",
+    boots_brown: "boots",
   };
 
   function todayKey(d = new Date()){
@@ -75,24 +110,9 @@
   }
 
   function loadEvents(){
-    const candidates = [
-      localStorage.getItem(LS_EVENTS),
-      localStorage.getItem("water_events_v3")
-    ].filter(Boolean);
-
-    if (candidates.length === 0) return [];
-
-    const arr = safeJsonParse(candidates[0], []);
+    const raw = localStorage.getItem(LS_EVENTS);
+    const arr = raw ? safeJsonParse(raw, []) : [];
     if (!Array.isArray(arr)) return [];
-
-    if (arr.length > 0 && typeof arr[0] === "number") {
-      const migrated = arr
-        .filter(n => typeof n === "number")
-        .map(ts => ({ ts, ml: 50 }));
-      localStorage.setItem(LS_EVENTS, JSON.stringify(migrated));
-      return migrated;
-    }
-
     return arr
       .filter(o => o && typeof o === "object")
       .map(o => ({ ts: o.ts, ml: o.ml }))
@@ -160,7 +180,62 @@
     localStorage.setItem(LS_PROFILE, JSON.stringify(profile));
   }
 
-  document.addEventListener("DOMContentLoaded", () => {
+  // --- Image cut-out + "cartoon" processing (simple + fast) ---
+  function loadImage(url){
+    return new Promise((resolve, reject) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => resolve(img);
+      img.onerror = () => reject(new Error(`Failed to load ${url}`));
+      img.src = url;
+    });
+  }
+
+  function processSticker(img, { remove = "white" }){
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d", { willReadFrequently: true });
+
+    canvas.width = img.naturalWidth;
+    canvas.height = img.naturalHeight;
+
+    ctx.drawImage(img, 0, 0);
+
+    const im = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    const d = im.data;
+
+    // remove background (white-ish or black-ish)
+    // AND make edges a bit cleaner by softening alpha
+    for (let i = 0; i < d.length; i += 4) {
+      const r = d[i], g = d[i+1], b = d[i+2];
+      const a = d[i+3];
+
+      if (a === 0) continue;
+
+      const max = Math.max(r,g,b);
+      const min = Math.min(r,g,b);
+
+      const isWhiteish = (r > 240 && g > 240 && b > 240) || (max > 245 && (max-min) < 20);
+      const isBlackish = (r < 18 && g < 18 && b < 18) || (max < 22 && (max-min) < 18);
+
+      const kill = (remove === "white" && isWhiteish) || (remove === "black" && isBlackish);
+      if (kill) {
+        d[i+3] = 0;
+        continue;
+      }
+
+      // Slight posterize (cartoon vibe): reduce color steps a bit
+      // (kept mild so it doesn't destroy texture)
+      const step = 18;
+      d[i]   = Math.round(r / step) * step;
+      d[i+1] = Math.round(g / step) * step;
+      d[i+2] = Math.round(b / step) * step;
+    }
+
+    ctx.putImageData(im, 0, 0);
+    return canvas.toDataURL("image/png");
+  }
+
+  document.addEventListener("DOMContentLoaded", async () => {
     let timerId = null;
 
     const bottleBtn = document.getElementById("bottleBtn");
@@ -233,31 +308,14 @@
     const closeSettingsBtn = document.getElementById("closeSettingsBtn");
     const darkModeToggle = document.getElementById("darkModeToggle");
 
-    const required = [
-      bottleBtn, bottleWrap, bottleHintEl, undoBtn,
-      clickCountEl, mlCountEl, progressNowEl, progressGoalEl,
-      progressFillEl, progressHintEl, bottleWaterEl, streakCountEl, toastEl,
-      menuBtn, menuPanel, historyBtn, reminderBtn, chartBtn, personaliseBtn, settingsBtn, closeMenuBtn,
-      historyModal, closeHistoryBtn, historyList, historyEmpty, historySub,
-      reminderModal, closeReminderBtn,
-      minutesInput, startBtn, stopBtn, statusEl, notifToggle, ding,
-      chartModal, closeChartBtn, chartDateSelect, chartCanvas, chartTotalMl, chartLegend,
-      personaliseModal, closePersonaliseBtn, savePersonaliseBtn, resetPersonaliseBtn, personaliseStatus,
-      pWeight, pGender, pActivity, pWeather, pCupMl,
-      cHeadwear, cFacewear, cShirt, cBottoms, cShoes,
-      settingsModal, closeSettingsBtn, darkModeToggle
-    ];
-    if (required.some(x => !x)) {
-      alert("Some elements are missing. Please replace index.html, style.css, and script.js exactly as provided.");
-      return;
-    }
+    const accImgs = Array.from(document.querySelectorAll(".accImg"));
 
+    // Theme
     function applyTheme(theme){
       if (theme === "dark") document.body.classList.add("dark");
       else document.body.classList.remove("dark");
       darkModeToggle.checked = (theme === "dark");
     }
-
     let theme = loadTheme();
     applyTheme(theme);
 
@@ -268,12 +326,11 @@
       if (chartModal.classList.contains("open")) drawChart(chartDateSelect.value);
     });
 
+    // Data
     let events = pruneOldEvents(loadEvents());
     let dailyGoal = loadGoal();
-
     let streak = loadStreak();
     let awardedDay = loadAwardedDay();
-
     let profile = loadProfile();
 
     function getCupMl(){
@@ -296,6 +353,7 @@
       chartLegend.textContent = `Each bar = total ml in that hour (based on your cup size at the time).`;
     }
 
+    // Toast
     let toastTimer = null;
     function showToast(msg){
       toastEl.textContent = msg;
@@ -304,6 +362,7 @@
       toastTimer = setTimeout(() => toastEl.classList.remove("show"), 2600);
     }
 
+    // Stats
     function statsForDay(dayKey){
       let clicks = 0;
       let ml = 0;
@@ -372,18 +431,19 @@
       }, ms + 50);
     }
 
+    // Log drink
     function logDrinkNow(){
       const cup = getCupMl();
       events.push({ ts: Date.now(), ml: cup });
       updateMainUI();
     }
-
     function undoLast(){
       if (events.length === 0) return;
       events.pop();
       updateMainUI();
     }
 
+    // History
     function renderHistory(){
       events = pruneOldEvents(events);
 
@@ -444,6 +504,7 @@
       }
     }
 
+    // Chart
     function getAvailableDayKeys(){
       const keys = [];
       const now = new Date();
@@ -542,6 +603,7 @@
       ctx.fillText(`Hourly intake (ml) — ${dayKey}`, padL, 14);
     }
 
+    // Menu + modals
     function openMenu(){
       menuPanel.classList.add("open");
       menuPanel.setAttribute("aria-hidden","false");
@@ -594,6 +656,7 @@
       }
     }
 
+    // Personalisation
     function populatePersonaliseForm(){
       pWeight.value = profile.weightKg ? String(profile.weightKg) : "";
       pGender.value = profile.gender || "unspecified";
@@ -662,6 +725,39 @@
       showToast("Personalisation reset");
     }
 
+    // --- Load & process sticker images once ---
+    async function initStickers(){
+      const processed = new Map(); // baseName -> dataURL
+
+      async function getBase(baseName){
+        if (processed.has(baseName)) return processed.get(baseName);
+
+        const url = ASSETS[baseName];
+        const img = await loadImage(url);
+
+        // sunglasses: remove black background, others: remove white background
+        const remove = (baseName === "sunglasses") ? "black" : "white";
+
+        const dataUrl = processSticker(img, { remove });
+        processed.set(baseName, dataUrl);
+        return dataUrl;
+      }
+
+      for (const el of accImgs){
+        const variant = el.dataset.variant;
+        const base = VARIANT_TO_BASE[variant];
+        if (!base) continue;
+
+        try{
+          el.src = await getBase(base);
+        }catch(e){
+          // If missing assets, don’t crash the app
+          console.warn(e);
+        }
+      }
+    }
+
+    // Events
     bottleBtn.addEventListener("click", logDrinkNow);
     undoBtn.addEventListener("click", undoLast);
 
@@ -768,6 +864,8 @@
     savePersonaliseBtn.addEventListener("click", savePersonalisation);
     resetPersonaliseBtn.addEventListener("click", resetPersonalisation);
 
+    // Init
+    await initStickers();
     applyOutfitToBottle();
     syncCupText();
     updateMainUI();

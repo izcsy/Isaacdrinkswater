@@ -237,8 +237,8 @@ body.dark .progressBar{ background: rgba(255,255,255,0.10); }
 /* Bottle drawing */
 .bottleWrap{
   position: relative;
-  width: 150px;
-  height: 240px; /* slightly taller so shoes fit nicer */
+  width: 180px;     /* bigger so clothes fit nicer */
+  height: 290px;
 }
 
 .bottleCap{
@@ -246,9 +246,9 @@ body.dark .progressBar{ background: rgba(255,255,255,0.10); }
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 56px;
-  height: 34px;
-  border-radius: 12px 12px 8px 8px;
+  width: 68px;
+  height: 38px;
+  border-radius: 14px 14px 10px 10px;
   background: rgba(0,0,0,0.10);
   border: 1px solid rgba(0,0,0,0.12);
   z-index: 3;
@@ -260,16 +260,15 @@ body.dark .bottleCap{
 
 .bottleBody{
   position:absolute;
-  top: 24px;
+  top: 26px;
   left: 50%;
   transform: translateX(-50%);
-  width: 140px;
-  height: 200px;
-  border-radius: 44px;
+  width: 168px;
+  height: 238px;
+  border-radius: 52px;
   background: rgba(255,255,255,0.55);
   border: 1px solid rgba(0,0,0,0.12);
   overflow:hidden;
-  box-shadow: none;
   z-index: 1;
 }
 body.dark .bottleBody{
@@ -286,359 +285,111 @@ body.dark .bottleBody{
   background: #ef4444;
   transition: height 220ms ease, background 220ms ease;
 }
+
 .bottleGloss{
   position:absolute;
   top: 18px;
-  right: 16px;
-  width: 30px;
-  height: 130px;
+  right: 18px;
+  width: 34px;
+  height: 160px;
   border-radius: 999px;
   background: rgba(255,255,255,0.55);
   opacity: 0.7;
 }
 body.dark .bottleGloss{ opacity: 0.35; }
 
-/* Accessories */
+/* Accessory layer */
 .accLayer{
   position:absolute;
   inset: 0;
   pointer-events:none;
-  z-index: 5; /* above bottle body */
+  z-index: 20;
 }
 
-.acc{
+/* Base “sticker” look */
+.accImg{
   position:absolute;
-  display:none;
-  transform: translateX(-50%);
   left: 50%;
-  filter: drop-shadow(0 8px 14px rgba(0,0,0,0.12));
-}
-body.dark .acc{
-  filter: drop-shadow(0 10px 18px rgba(0,0,0,0.35));
-}
-
-/* ===== HEADWEAR (sits above cap) ===== */
-.acc-headwear{ top: -10px; z-index: 7; }
-
-.acc-headwear.cap{
-  width: 110px; height: 44px;
-  background: linear-gradient(180deg, rgba(45,108,255,0.35), rgba(45,108,255,0.10));
-  border-radius: 999px;
-  border: 1px solid rgba(0,0,0,0.10);
-}
-.acc-headwear.cap::after{
-  content:"";
-  position:absolute;
-  left: 18px; top: 26px;
-  width: 68px; height: 18px;
-  border-radius: 999px;
-  background: rgba(45,108,255,0.22);
-  border: 1px solid rgba(0,0,0,0.10);
-  transform: skewX(-12deg);
-}
-
-.acc-headwear.beanie{
-  width: 96px; height: 48px;
-  background: linear-gradient(180deg, rgba(245,158,11,0.32), rgba(245,158,11,0.10));
-  border-radius: 30px 30px 18px 18px;
-  border: 1px solid rgba(0,0,0,0.10);
-}
-.acc-headwear.beanie::after{
-  content:"";
-  position:absolute;
-  left: 50%; top: -12px;
   transform: translateX(-50%);
-  width: 20px; height: 20px;
-  border-radius: 999px;
-  background: rgba(245,158,11,0.25);
-  border: 1px solid rgba(0,0,0,0.10);
+  display:none;
+
+  /* sticker/cartoon vibe */
+  filter:
+    drop-shadow(0 10px 18px rgba(0,0,0,0.20))
+    saturate(1.2)
+    contrast(1.12);
+
+  image-rendering: auto;
 }
 
-.acc-headwear.halo{
-  width: 110px; height: 22px;
-  border-radius: 999px;
-  border: 3px solid rgba(250,204,21,0.55);
-  background: rgba(250,204,21,0.10);
-  top: -20px;
+/* SHOW based on selected variant */
+.bottleWrap[data-headwear="cap_blue"]  .accImg.headwear[data-variant="cap_blue"],
+.bottleWrap[data-headwear="cap_red"]   .accImg.headwear[data-variant="cap_red"],
+.bottleWrap[data-headwear="cap_black"] .accImg.headwear[data-variant="cap_black"]{ display:block; }
+
+.bottleWrap[data-facewear="shades_black"] .accImg.facewear[data-variant="shades_black"],
+.bottleWrap[data-facewear="shades_blue"]  .accImg.facewear[data-variant="shades_blue"],
+.bottleWrap[data-facewear="shades_gold"]  .accImg.facewear[data-variant="shades_gold"]{ display:block; }
+
+.bottleWrap[data-shirt="tee_black"] .accImg.shirt[data-variant="tee_black"],
+.bottleWrap[data-shirt="tee_white"] .accImg.shirt[data-variant="tee_white"],
+.bottleWrap[data-shirt="tee_blue"] .accImg.shirt[data-variant="tee_blue"]{ display:block; }
+
+.bottleWrap[data-bottoms="jeans_light"] .accImg.bottoms[data-variant="jeans_light"],
+.bottleWrap[data-bottoms="jeans_dark"]  .accImg.bottoms[data-variant="jeans_dark"],
+.bottleWrap[data-bottoms="jeans_black"] .accImg.bottoms[data-variant="jeans_black"]{ display:block; }
+
+.bottleWrap[data-shoes="boots_yellow"] .accImg.shoes[data-variant="boots_yellow"],
+.bottleWrap[data-shoes="boots_black"]  .accImg.shoes[data-variant="boots_black"],
+.bottleWrap[data-shoes="boots_brown"]  .accImg.shoes[data-variant="boots_brown"]{ display:block; }
+
+/* Positioning (matches your “dressed bottle” reference) */
+.accImg.headwear{
+  top: -18px;
+  width: 210px;
+  height: auto;
+  z-index: 40;
+}
+.accImg.facewear{
+  top: 70px;
+  width: 210px;
+  height: auto;
+  z-index: 45;
+}
+.accImg.shirt{
+  top: 102px;
+  width: 250px;
+  height: auto;
+  z-index: 35;
+}
+.accImg.bottoms{
+  top: 160px;
+  width: 190px;
+  height: auto;
+  z-index: 34;
+}
+.accImg.shoes{
+  top: 235px;
+  width: 270px;
+  height: auto;
+  z-index: 50;
 }
 
-/* ===== FACEWEAR (upper “face” area) ===== */
-.acc-facewear{ top: 74px; z-index: 8; }
+/* Variant styling (colorways) */
+.accImg[data-variant="cap_red"]{ filter: drop-shadow(0 10px 18px rgba(0,0,0,0.20)) saturate(1.25) contrast(1.12) hue-rotate(320deg); }
+.accImg[data-variant="cap_black"]{ filter: drop-shadow(0 10px 18px rgba(0,0,0,0.25)) saturate(0.95) contrast(1.20) brightness(0.85); }
 
-.acc-facewear.shades{
-  width: 128px; height: 30px;
-  border-radius: 999px;
-  background: rgba(0,0,0,0.08);
-}
-body.dark .acc-facewear.shades{ background: rgba(255,255,255,0.06); }
-.acc-facewear.shades::before,
-.acc-facewear.shades::after{
-  content:"";
-  position:absolute;
-  top: 6px;
-  width: 42px; height: 18px;
-  border-radius: 10px;
-  background: rgba(0,0,0,0.55);
-}
-body.dark .acc-facewear.shades::before,
-body.dark .acc-facewear.shades::after{ background: rgba(0,0,0,0.60); }
-.acc-facewear.shades::before{ left: 16px; }
-.acc-facewear.shades::after{ right: 16px; }
-.acc-facewear.shades{
-  outline: 1px solid rgba(0,0,0,0.10);
-}
+.accImg[data-variant="shades_blue"]{ filter: drop-shadow(0 10px 18px rgba(0,0,0,0.25)) saturate(1.25) contrast(1.18) hue-rotate(200deg); }
+.accImg[data-variant="shades_gold"]{ filter: drop-shadow(0 10px 18px rgba(0,0,0,0.25)) saturate(1.25) contrast(1.18) hue-rotate(40deg); }
 
-.acc-facewear.mask{
-  width: 120px; height: 34px;
-  border-radius: 18px;
-  background: linear-gradient(180deg, rgba(96,165,250,0.30), rgba(96,165,250,0.10));
-  border: 1px solid rgba(0,0,0,0.10);
-  top: 92px;
-}
-.acc-facewear.mask::before,
-.acc-facewear.mask::after{
-  content:"";
-  position:absolute;
-  top: 10px;
-  width: 18px; height: 14px;
-  border-radius: 999px;
-  border: 2px solid rgba(0,0,0,0.10);
-  background: transparent;
-}
-.acc-facewear.mask::before{ left: -10px; }
-.acc-facewear.mask::after{ right: -10px; }
+.accImg[data-variant="tee_white"]{ filter: drop-shadow(0 10px 18px rgba(0,0,0,0.20)) saturate(0.9) contrast(1.10) brightness(1.22); }
+.accImg[data-variant="tee_blue"]{ filter: drop-shadow(0 10px 18px rgba(0,0,0,0.20)) saturate(1.25) contrast(1.12) hue-rotate(210deg); }
 
-.acc-facewear.blush{
-  width: 126px; height: 26px;
-  top: 96px;
-  background: transparent;
-  filter: none;
-}
-.acc-facewear.blush::before,
-.acc-facewear.blush::after{
-  content:"";
-  position:absolute;
-  top: 4px;
-  width: 22px; height: 14px;
-  border-radius: 999px;
-  background: rgba(244,63,94,0.22);
-}
-.acc-facewear.blush::before{ left: 20px; }
-.acc-facewear.blush::after{ right: 20px; }
+.accImg[data-variant="jeans_dark"]{ filter: drop-shadow(0 10px 18px rgba(0,0,0,0.20)) saturate(1.05) contrast(1.18) brightness(0.85); }
+.accImg[data-variant="jeans_black"]{ filter: drop-shadow(0 10px 18px rgba(0,0,0,0.24)) saturate(0.95) contrast(1.20) brightness(0.68); }
 
-/* ===== SHIRTS (sit on chest) ===== */
-.acc-shirt{ top: 110px; z-index: 6; }
-
-.acc-shirt.polo{
-  width: 132px; height: 62px;
-  border-radius: 22px;
-  background: linear-gradient(180deg, rgba(45,108,255,0.22), rgba(45,108,255,0.08));
-  border: 1px solid rgba(0,0,0,0.10);
-}
-.acc-shirt.polo::before{
-  content:"";
-  position:absolute;
-  left: 50%; top: -8px;
-  transform: translateX(-50%);
-  width: 62px; height: 24px;
-  border-radius: 16px 16px 14px 14px;
-  background: rgba(45,108,255,0.18);
-  border: 1px solid rgba(0,0,0,0.10);
-}
-.acc-shirt.polo::after{
-  content:"";
-  position:absolute;
-  left: 50%; top: 10px;
-  transform: translateX(-50%);
-  width: 22px; height: 30px;
-  border-radius: 10px;
-  background: rgba(0,0,0,0.05);
-}
-
-.acc-shirt.hoodie{
-  width: 136px; height: 70px;
-  border-radius: 26px;
-  background: linear-gradient(180deg, rgba(245,158,11,0.22), rgba(245,158,11,0.08));
-  border: 1px solid rgba(0,0,0,0.10);
-}
-.acc-shirt.hoodie::before{
-  content:"";
-  position:absolute;
-  left: 50%; top: -16px;
-  transform: translateX(-50%);
-  width: 74px; height: 36px;
-  border-radius: 22px 22px 16px 16px;
-  background: rgba(245,158,11,0.16);
-  border: 1px solid rgba(0,0,0,0.10);
-}
-.acc-shirt.hoodie::after{
-  content:"";
-  position:absolute;
-  left: 50%; top: 14px;
-  transform: translateX(-50%);
-  width: 70px; height: 36px;
-  border-radius: 18px;
-  background: rgba(0,0,0,0.04);
-}
-
-.acc-shirt.jacket{
-  width: 140px; height: 74px;
-  border-radius: 28px;
-  background: linear-gradient(180deg, rgba(0,0,0,0.08), rgba(0,0,0,0.03));
-  border: 1px solid rgba(0,0,0,0.10);
-}
-body.dark .acc-shirt.jacket{
-  background: linear-gradient(180deg, rgba(255,255,255,0.10), rgba(255,255,255,0.04));
-  border: 1px solid rgba(255,255,255,0.12);
-}
-.acc-shirt.jacket::before{
-  content:"";
-  position:absolute;
-  left: 50%; top: 0;
-  transform: translateX(-50%);
-  width: 4px; height: 74px;
-  background: rgba(0,0,0,0.10);
-  border-radius: 999px;
-}
-body.dark .acc-shirt.jacket::before{ background: rgba(255,255,255,0.10); }
-
-/* ===== BOTTOMS (sit lower, like pants) ===== */
-.acc-bottoms{ top: 162px; z-index: 6; }
-
-.acc-bottoms.shorts{
-  width: 128px; height: 48px;
-  border-radius: 20px;
-  background: linear-gradient(180deg, rgba(34,197,94,0.20), rgba(34,197,94,0.07));
-  border: 1px solid rgba(0,0,0,0.10);
-}
-.acc-bottoms.shorts::before{
-  content:"";
-  position:absolute;
-  left: 50%; top: 10px;
-  transform: translateX(-50%);
-  width: 20px; height: 38px;
-  background: rgba(0,0,0,0.04);
-  border-radius: 12px;
-}
-
-.acc-bottoms.joggers{
-  width: 130px; height: 66px;
-  border-radius: 22px;
-  background: linear-gradient(180deg, rgba(96,165,250,0.22), rgba(96,165,250,0.08));
-  border: 1px solid rgba(0,0,0,0.10);
-}
-.acc-bottoms.joggers::before{
-  content:"";
-  position:absolute;
-  left: 50%; top: 8px;
-  transform: translateX(-50%);
-  width: 14px; height: 58px;
-  background: rgba(0,0,0,0.05);
-  border-radius: 999px;
-}
-
-.acc-bottoms.jeans{
-  width: 130px; height: 72px;
-  border-radius: 22px;
-  background: linear-gradient(180deg, rgba(45,108,255,0.20), rgba(45,108,255,0.06));
-  border: 1px solid rgba(0,0,0,0.10);
-}
-.acc-bottoms.jeans::before,
-.acc-bottoms.jeans::after{
-  content:"";
-  position:absolute;
-  top: 10px;
-  width: 18px; height: 56px;
-  border-radius: 999px;
-  background: rgba(0,0,0,0.04);
-}
-.acc-bottoms.jeans::before{ left: 20px; }
-.acc-bottoms.jeans::after{ right: 20px; }
-
-/* ===== SHOES (sit at bottom like feet) ===== */
-.acc-shoes{
-  top: 220px;
-  z-index: 9;
-  filter: drop-shadow(0 10px 16px rgba(0,0,0,0.18));
-}
-
-.acc-shoes.sneakers{
-  width: 150px; height: 34px;
-  background: transparent;
-  transform: translateX(-50%);
-}
-.acc-shoes.sneakers::before,
-.acc-shoes.sneakers::after{
-  content:"";
-  position:absolute;
-  bottom: 0;
-  width: 70px; height: 28px;
-  border-radius: 18px 18px 14px 14px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.55));
-  border: 1px solid rgba(0,0,0,0.12);
-}
-body.dark .acc-shoes.sneakers::before,
-body.dark .acc-shoes.sneakers::after{
-  background: linear-gradient(180deg, rgba(255,255,255,0.18), rgba(255,255,255,0.08));
-  border: 1px solid rgba(255,255,255,0.12);
-}
-.acc-shoes.sneakers::before{ left: 0; transform: rotate(-6deg); }
-.acc-shoes.sneakers::after{ right: 0; transform: rotate(6deg); }
-
-.acc-shoes.slides{
-  width: 150px; height: 30px;
-  background: transparent;
-}
-.acc-shoes.slides::before,
-.acc-shoes.slides::after{
-  content:"";
-  position:absolute;
-  bottom: 0;
-  width: 68px; height: 22px;
-  border-radius: 14px;
-  background: rgba(245,158,11,0.18);
-  border: 1px solid rgba(0,0,0,0.12);
-}
-.acc-shoes.slides::before{ left: 0; transform: rotate(-4deg); }
-.acc-shoes.slides::after{ right: 0; transform: rotate(4deg); }
-
-.acc-shoes.boots{
-  width: 150px; height: 38px;
-  background: transparent;
-}
-.acc-shoes.boots::before,
-.acc-shoes.boots::after{
-  content:"";
-  position:absolute;
-  bottom: 0;
-  width: 68px; height: 34px;
-  border-radius: 14px;
-  background: linear-gradient(180deg, rgba(120,53,15,0.22), rgba(120,53,15,0.10));
-  border: 1px solid rgba(0,0,0,0.12);
-}
-.acc-shoes.boots::before{ left: 0; transform: rotate(-4deg); }
-.acc-shoes.boots::after{ right: 0; transform: rotate(4deg); }
-
-/* Show selected accessories based on bottleWrap data attrs */
-.bottleWrap[data-headwear="cap"] .acc-headwear.cap{ display:block; }
-.bottleWrap[data-headwear="beanie"] .acc-headwear.beanie{ display:block; }
-.bottleWrap[data-headwear="halo"] .acc-headwear.halo{ display:block; }
-
-.bottleWrap[data-facewear="shades"] .acc-facewear.shades{ display:block; }
-.bottleWrap[data-facewear="mask"] .acc-facewear.mask{ display:block; }
-.bottleWrap[data-facewear="blush"] .acc-facewear.blush{ display:block; }
-
-.bottleWrap[data-shirt="polo"] .acc-shirt.polo{ display:block; }
-.bottleWrap[data-shirt="hoodie"] .acc-shirt.hoodie{ display:block; }
-.bottleWrap[data-shirt="jacket"] .acc-shirt.jacket{ display:block; }
-
-.bottleWrap[data-bottoms="shorts"] .acc-bottoms.shorts{ display:block; }
-.bottleWrap[data-bottoms="joggers"] .acc-bottoms.joggers{ display:block; }
-.bottleWrap[data-bottoms="jeans"] .acc-bottoms.jeans{ display:block; }
-
-.bottleWrap[data-shoes="sneakers"] .acc-shoes.sneakers{ display:block; }
-.bottleWrap[data-shoes="slides"] .acc-shoes.slides{ display:block; }
-.bottleWrap[data-shoes="boots"] .acc-shoes.boots{ display:block; }
+.accImg[data-variant="boots_black"]{ filter: drop-shadow(0 10px 18px rgba(0,0,0,0.28)) saturate(0.95) contrast(1.15) brightness(0.75); }
+.accImg[data-variant="boots_brown"]{ filter: drop-shadow(0 10px 18px rgba(0,0,0,0.24)) saturate(1.10) contrast(1.12) hue-rotate(18deg); }
 
 /* Toast */
 .toast{

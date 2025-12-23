@@ -78,32 +78,32 @@
             <div class="bottleGloss"></div>
           </div>
 
-          <!-- Accessories -->
+          <!-- Sticker layers (real images, auto cut-out + cartoon in JS) -->
           <div class="accLayer" aria-hidden="true">
             <!-- Headwear -->
-            <div class="acc acc-headwear cap"></div>
-            <div class="acc acc-headwear beanie"></div>
-            <div class="acc acc-headwear halo"></div>
+            <img class="accImg headwear v1" data-item="headwear" data-variant="cap_blue" alt="">
+            <img class="accImg headwear v2" data-item="headwear" data-variant="cap_red" alt="">
+            <img class="accImg headwear v3" data-item="headwear" data-variant="cap_black" alt="">
 
             <!-- Facewear -->
-            <div class="acc acc-facewear shades"></div>
-            <div class="acc acc-facewear mask"></div>
-            <div class="acc acc-facewear blush"></div>
+            <img class="accImg facewear v1" data-item="facewear" data-variant="shades_black" alt="">
+            <img class="accImg facewear v2" data-item="facewear" data-variant="shades_blue" alt="">
+            <img class="accImg facewear v3" data-item="facewear" data-variant="shades_gold" alt="">
 
             <!-- Shirts -->
-            <div class="acc acc-shirt polo"></div>
-            <div class="acc acc-shirt hoodie"></div>
-            <div class="acc acc-shirt jacket"></div>
+            <img class="accImg shirt v1" data-item="shirt" data-variant="tee_black" alt="">
+            <img class="accImg shirt v2" data-item="shirt" data-variant="tee_white" alt="">
+            <img class="accImg shirt v3" data-item="shirt" data-variant="tee_blue" alt="">
 
             <!-- Bottoms -->
-            <div class="acc acc-bottoms shorts"></div>
-            <div class="acc acc-bottoms joggers"></div>
-            <div class="acc acc-bottoms jeans"></div>
+            <img class="accImg bottoms v1" data-item="bottoms" data-variant="jeans_light" alt="">
+            <img class="accImg bottoms v2" data-item="bottoms" data-variant="jeans_dark" alt="">
+            <img class="accImg bottoms v3" data-item="bottoms" data-variant="jeans_black" alt="">
 
             <!-- Shoes -->
-            <div class="acc acc-shoes sneakers"></div>
-            <div class="acc acc-shoes slides"></div>
-            <div class="acc acc-shoes boots"></div>
+            <img class="accImg shoes v1" data-item="shoes" data-variant="boots_yellow" alt="">
+            <img class="accImg shoes v2" data-item="shoes" data-variant="boots_black" alt="">
+            <img class="accImg shoes v3" data-item="shoes" data-variant="boots_brown" alt="">
           </div>
         </div>
 
@@ -258,8 +258,6 @@
                   <option value="200">200 ml</option>
                 </select>
               </label>
-
-              <!-- Removed the dashed hint section here (per your request) -->
             </div>
           </section>
 
@@ -271,9 +269,9 @@
                 Headwear
                 <select id="cHeadwear">
                   <option value="none">None</option>
-                  <option value="cap">Cap</option>
-                  <option value="beanie">Beanie</option>
-                  <option value="halo">Halo</option>
+                  <option value="cap_blue">Cap (Blue)</option>
+                  <option value="cap_red">Cap (Red)</option>
+                  <option value="cap_black">Cap (Black)</option>
                 </select>
               </label>
 
@@ -281,9 +279,9 @@
                 Facewear
                 <select id="cFacewear">
                   <option value="none">None</option>
-                  <option value="shades">Shades</option>
-                  <option value="mask">Mask</option>
-                  <option value="blush">Blush</option>
+                  <option value="shades_black">Sunglasses (Black)</option>
+                  <option value="shades_blue">Sunglasses (Blue)</option>
+                  <option value="shades_gold">Sunglasses (Gold)</option>
                 </select>
               </label>
 
@@ -291,9 +289,9 @@
                 Shirts
                 <select id="cShirt">
                   <option value="none">None</option>
-                  <option value="polo">Polo</option>
-                  <option value="hoodie">Hoodie</option>
-                  <option value="jacket">Jacket</option>
+                  <option value="tee_black">Tee (Black)</option>
+                  <option value="tee_white">Tee (White)</option>
+                  <option value="tee_blue">Tee (Blue)</option>
                 </select>
               </label>
 
@@ -301,9 +299,9 @@
                 Bottoms
                 <select id="cBottoms">
                   <option value="none">None</option>
-                  <option value="shorts">Shorts</option>
-                  <option value="joggers">Joggers</option>
-                  <option value="jeans">Jeans</option>
+                  <option value="jeans_light">Jeans (Light)</option>
+                  <option value="jeans_dark">Jeans (Dark)</option>
+                  <option value="jeans_black">Jeans (Black)</option>
                 </select>
               </label>
 
@@ -311,14 +309,14 @@
                 Shoes
                 <select id="cShoes">
                   <option value="none">None</option>
-                  <option value="sneakers">Sneakers</option>
-                  <option value="slides">Slides</option>
-                  <option value="boots">Boots</option>
+                  <option value="boots_yellow">Boots (Yellow)</option>
+                  <option value="boots_black">Boots (Black)</option>
+                  <option value="boots_brown">Boots (Brown)</option>
                 </select>
               </label>
 
               <div class="hintBox">
-                Outfit appears on the bottle instantly. One item per category.
+                Clothing uses your images (auto cut-out + cartoon). One item per category.
               </div>
             </div>
           </section>

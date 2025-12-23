@@ -48,7 +48,6 @@
           <div class="progressRight">
             <div class="progressText"><span id="progressNow">0</span> / <span id="progressGoal">2000</span> ml</div>
 
-            <!-- Streak badge -->
             <div class="streakBadge" title="Days you hit your goal">
               <span class="streakIcon">🔥</span>
               <span id="streakCount">0</span>
@@ -71,6 +70,7 @@
              data-shirt="none"
              data-bottoms="none"
              data-shoes="none">
+
           <div class="bottleCap"></div>
 
           <div class="bottleBody">
@@ -78,32 +78,32 @@
             <div class="bottleGloss"></div>
           </div>
 
-          <!-- Accessories (simple shapes) -->
-          <div class="accLayer">
+          <!-- Accessories -->
+          <div class="accLayer" aria-hidden="true">
             <!-- Headwear -->
             <div class="acc acc-headwear cap"></div>
             <div class="acc acc-headwear beanie"></div>
-            <div class="acc acc-headwear crown"></div>
+            <div class="acc acc-headwear halo"></div>
 
             <!-- Facewear -->
-            <div class="acc acc-facewear glasses"></div>
+            <div class="acc acc-facewear shades"></div>
             <div class="acc acc-facewear mask"></div>
-            <div class="acc acc-facewear visor"></div>
+            <div class="acc acc-facewear blush"></div>
 
-            <!-- Shirt -->
-            <div class="acc acc-shirt tee"></div>
+            <!-- Shirts -->
+            <div class="acc acc-shirt polo"></div>
             <div class="acc acc-shirt hoodie"></div>
             <div class="acc acc-shirt jacket"></div>
 
             <!-- Bottoms -->
             <div class="acc acc-bottoms shorts"></div>
+            <div class="acc acc-bottoms joggers"></div>
             <div class="acc acc-bottoms jeans"></div>
-            <div class="acc acc-bottoms skirt"></div>
 
             <!-- Shoes -->
             <div class="acc acc-shoes sneakers"></div>
+            <div class="acc acc-shoes slides"></div>
             <div class="acc acc-shoes boots"></div>
-            <div class="acc acc-shoes sandals"></div>
           </div>
         </div>
 
@@ -123,7 +123,7 @@
       <div class="modalHeader">
         <div>
           <div class="modalTitle">History (last 30 days)</div>
-          <div class="modalSub" id="historySub">Each entry is one bottle click.</div>
+          <div class="modalSub" id="historySub">Each entry logs your cup size at that time.</div>
         </div>
         <button id="closeHistoryBtn" class="iconBtn" type="button" aria-label="Close history">✕</button>
       </div>
@@ -175,7 +175,7 @@
       <div class="modalHeader">
         <div>
           <div class="modalTitle">📊 Drinking chart</div>
-          <div class="modalSub" id="chartSub">Shows how much you drank each hour.</div>
+          <div class="modalSub">Shows how much you drank each hour.</div>
         </div>
         <button id="closeChartBtn" class="iconBtn" type="button" aria-label="Close chart">✕</button>
       </div>
@@ -194,7 +194,7 @@
         </div>
 
         <div class="chartLegend" id="chartLegend">
-          Each bar = total ml in that hour.
+          Each bar = total ml in that hour (based on your cup size at the time).
         </div>
       </div>
     </div>
@@ -259,9 +259,7 @@
                 </select>
               </label>
 
-              <div class="hintBox">
-                Cup size changes how much you log per bottle click (and affects charts/history going forward).
-              </div>
+              <!-- Removed the dashed hint section here (per your request) -->
             </div>
           </section>
 
@@ -275,7 +273,7 @@
                   <option value="none">None</option>
                   <option value="cap">Cap</option>
                   <option value="beanie">Beanie</option>
-                  <option value="crown">Crown</option>
+                  <option value="halo">Halo</option>
                 </select>
               </label>
 
@@ -283,9 +281,9 @@
                 Facewear
                 <select id="cFacewear">
                   <option value="none">None</option>
-                  <option value="glasses">Glasses</option>
+                  <option value="shades">Shades</option>
                   <option value="mask">Mask</option>
-                  <option value="visor">Visor</option>
+                  <option value="blush">Blush</option>
                 </select>
               </label>
 
@@ -293,7 +291,7 @@
                 Shirts
                 <select id="cShirt">
                   <option value="none">None</option>
-                  <option value="tee">Tee</option>
+                  <option value="polo">Polo</option>
                   <option value="hoodie">Hoodie</option>
                   <option value="jacket">Jacket</option>
                 </select>
@@ -304,8 +302,8 @@
                 <select id="cBottoms">
                   <option value="none">None</option>
                   <option value="shorts">Shorts</option>
+                  <option value="joggers">Joggers</option>
                   <option value="jeans">Jeans</option>
-                  <option value="skirt">Skirt</option>
                 </select>
               </label>
 
@@ -314,13 +312,13 @@
                 <select id="cShoes">
                   <option value="none">None</option>
                   <option value="sneakers">Sneakers</option>
+                  <option value="slides">Slides</option>
                   <option value="boots">Boots</option>
-                  <option value="sandals">Sandals</option>
                 </select>
               </label>
 
               <div class="hintBox">
-                Your selections appear on the bottle icon immediately. One item per category.
+                Outfit appears on the bottle instantly. One item per category.
               </div>
             </div>
           </section>

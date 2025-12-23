@@ -1,17 +1,13 @@
 (() => {
-  /***********************
-   * CONFIG
-   ***********************/
   const DEFAULT_DAILY_GOAL = 2000;
   const HISTORY_DAYS = 30;
 
-  // Storage keys
-  const LS_EVENTS = "water_events_v4"; // now stores [{ts:number, ml:number}]
+  const LS_EVENTS = "water_events_v4"; // [{ts, ml}]
   const LS_GOAL = "water_goal_v3";
   const LS_STREAK = "water_streak_v1";
   const LS_AWARDED_DAY = "water_streak_awarded_day_v1";
-  const LS_THEME = "water_theme_v1"; // "light" | "dark"
-  const LS_PROFILE = "water_profile_v1"; // personalisation settings
+  const LS_THEME = "water_theme_v1";
+  const LS_PROFILE = "water_profile_v1";
 
   const DEFAULT_PROFILE = {
     weightKg: "",
@@ -28,9 +24,6 @@
     }
   };
 
-  /***********************
-   * UTIL
-   ***********************/
   function todayKey(d = new Date()){
     const y = d.getFullYear();
     const m = String(d.getMonth()+1).padStart(2,"0");
@@ -81,14 +74,10 @@
     try { return JSON.parse(raw); } catch { return fallback; }
   }
 
-  /***********************
-   * STORAGE
-   ***********************/
   function loadEvents(){
-    // Migration: older versions stored [number, number, ...]
     const candidates = [
       localStorage.getItem(LS_EVENTS),
-      localStorage.getItem("water_events_v3") // attempt to migrate
+      localStorage.getItem("water_events_v3")
     ].filter(Boolean);
 
     if (candidates.length === 0) return [];
@@ -96,7 +85,6 @@
     const arr = safeJsonParse(candidates[0], []);
     if (!Array.isArray(arr)) return [];
 
-    // If numbers: migrate to objects with default 50ml
     if (arr.length > 0 && typeof arr[0] === "number") {
       const migrated = arr
         .filter(n => typeof n === "number")
@@ -105,16 +93,10 @@
       return migrated;
     }
 
-    // If objects: validate
-    const cleaned = arr
+    return arr
       .filter(o => o && typeof o === "object")
-      .map(o => ({
-        ts: (typeof o.ts === "number" ? o.ts : NaN),
-        ml: (typeof o.ml === "number" ? o.ml : NaN),
-      }))
+      .map(o => ({ ts: o.ts, ml: o.ml }))
       .filter(o => Number.isFinite(o.ts) && Number.isFinite(o.ml) && o.ml > 0);
-
-    return cleaned;
   }
 
   function saveEvents(events){
@@ -178,17 +160,12 @@
     localStorage.setItem(LS_PROFILE, JSON.stringify(profile));
   }
 
-  /***********************
-   * DOM READY
-   ***********************/
   document.addEventListener("DOMContentLoaded", () => {
     let timerId = null;
 
-    // Main UI
     const bottleBtn = document.getElementById("bottleBtn");
     const bottleWrap = document.getElementById("bottleWrap");
     const bottleHintEl = document.getElementById("bottleHint");
-
     const undoBtn = document.getElementById("undoBtn");
 
     const clickCountEl = document.getElementById("clickCount");
@@ -203,7 +180,6 @@
     const streakCountEl = document.getElementById("streakCount");
     const toastEl = document.getElementById("toast");
 
-    // Menu
     const menuBtn = document.getElementById("menuBtn");
     const menuPanel = document.getElementById("menuPanel");
     const historyBtn = document.getElementById("historyBtn");
@@ -213,18 +189,14 @@
     const settingsBtn = document.getElementById("settingsBtn");
     const closeMenuBtn = document.getElementById("closeMenuBtn");
 
-    // History modal
     const historyModal = document.getElementById("historyModal");
     const closeHistoryBtn = document.getElementById("closeHistoryBtn");
     const historyList = document.getElementById("historyList");
     const historyEmpty = document.getElementById("historyEmpty");
     const historySub = document.getElementById("historySub");
 
-    // Reminder modal
     const reminderModal = document.getElementById("reminderModal");
     const closeReminderBtn = document.getElementById("closeReminderBtn");
-
-    // Reminder controls
     const minutesInput = document.getElementById("minutes");
     const startBtn = document.getElementById("startBtn");
     const stopBtn = document.getElementById("stopBtn");
@@ -232,7 +204,6 @@
     const notifToggle = document.getElementById("notifToggle");
     const ding = document.getElementById("ding");
 
-    // Chart modal
     const chartModal = document.getElementById("chartModal");
     const closeChartBtn = document.getElementById("closeChartBtn");
     const chartDateSelect = document.getElementById("chartDateSelect");
@@ -240,33 +211,28 @@
     const chartTotalMl = document.getElementById("chartTotalMl");
     const chartLegend = document.getElementById("chartLegend");
 
-    // Personalisation modal
     const personaliseModal = document.getElementById("personaliseModal");
     const closePersonaliseBtn = document.getElementById("closePersonaliseBtn");
     const savePersonaliseBtn = document.getElementById("savePersonaliseBtn");
     const resetPersonaliseBtn = document.getElementById("resetPersonaliseBtn");
     const personaliseStatus = document.getElementById("personaliseStatus");
 
-    // Personal detail fields
     const pWeight = document.getElementById("pWeight");
     const pGender = document.getElementById("pGender");
     const pActivity = document.getElementById("pActivity");
     const pWeather = document.getElementById("pWeather");
     const pCupMl = document.getElementById("pCupMl");
 
-    // Outfit selects
     const cHeadwear = document.getElementById("cHeadwear");
     const cFacewear = document.getElementById("cFacewear");
     const cShirt = document.getElementById("cShirt");
     const cBottoms = document.getElementById("cBottoms");
     const cShoes = document.getElementById("cShoes");
 
-    // Settings modal
     const settingsModal = document.getElementById("settingsModal");
     const closeSettingsBtn = document.getElementById("closeSettingsBtn");
     const darkModeToggle = document.getElementById("darkModeToggle");
 
-    // Guard
     const required = [
       bottleBtn, bottleWrap, bottleHintEl, undoBtn,
       clickCountEl, mlCountEl, progressNowEl, progressGoalEl,
@@ -286,9 +252,6 @@
       return;
     }
 
-    /***********************
-     * THEME INIT
-     ***********************/
     function applyTheme(theme){
       if (theme === "dark") document.body.classList.add("dark");
       else document.body.classList.remove("dark");
@@ -302,13 +265,9 @@
       theme = darkModeToggle.checked ? "dark" : "light";
       saveTheme(theme);
       applyTheme(theme);
-      // Redraw chart if open so text contrasts better
       if (chartModal.classList.contains("open")) drawChart(chartDateSelect.value);
     });
 
-    /***********************
-     * STATE
-     ***********************/
     let events = pruneOldEvents(loadEvents());
     let dailyGoal = loadGoal();
 
@@ -333,14 +292,10 @@
     function syncCupText(){
       const cup = getCupMl();
       bottleHintEl.textContent = `Click to log ${cup}ml`;
-      progressHintEl.textContent = `Tap the bottle to log ${cup}ml.`;
-      historySub.textContent = `Each entry logs the cup size chosen at that time. Current cup size: ${cup}ml.`;
-      chartLegend.textContent = `Each bar = total ml in that hour (based on your logged cup size at the time).`;
+      historySub.textContent = `Each entry logs your cup size at that time. Current cup size: ${cup}ml.`;
+      chartLegend.textContent = `Each bar = total ml in that hour (based on your cup size at the time).`;
     }
 
-    /***********************
-     * TOAST
-     ***********************/
     let toastTimer = null;
     function showToast(msg){
       toastEl.textContent = msg;
@@ -349,9 +304,6 @@
       toastTimer = setTimeout(() => toastEl.classList.remove("show"), 2600);
     }
 
-    /***********************
-     * COUNTS
-     ***********************/
     function statsForDay(dayKey){
       let clicks = 0;
       let ml = 0;
@@ -364,9 +316,6 @@
       return { clicks, ml };
     }
 
-    /***********************
-     * STREAK AWARD
-     ***********************/
     function maybeAwardStreakIfGoalReached(todayMl){
       const day = todayKey();
       if (awardedDay === day) return;
@@ -382,9 +331,6 @@
       showToast(`🎉 Goal reached! Streak +1 (🔥 ${streak})`);
     }
 
-    /***********************
-     * MAIN UI UPDATE
-     ***********************/
     function updateMainUI(){
       events = pruneOldEvents(events);
       saveEvents(events);
@@ -417,9 +363,6 @@
       maybeAwardStreakIfGoalReached(ml);
     }
 
-    /***********************
-     * MIDNIGHT REFRESH
-     ***********************/
     function scheduleMidnightRefresh(){
       const ms = msUntilNextMidnight();
       setTimeout(() => {
@@ -429,9 +372,6 @@
       }, ms + 50);
     }
 
-    /***********************
-     * DRINK ACTIONS
-     ***********************/
     function logDrinkNow(){
       const cup = getCupMl();
       events.push({ ts: Date.now(), ml: cup });
@@ -444,9 +384,6 @@
       updateMainUI();
     }
 
-    /***********************
-     * HISTORY
-     ***********************/
     function renderHistory(){
       events = pruneOldEvents(events);
 
@@ -507,9 +444,6 @@
       }
     }
 
-    /***********************
-     * CHART
-     ***********************/
     function getAvailableDayKeys(){
       const keys = [];
       const now = new Date();
@@ -559,7 +493,6 @@
       const innerW = W - padL - padR;
       const innerH = H - padT - padB;
 
-      // Choose contrasting label colors by theme (simple)
       const isDark = document.body.classList.contains("dark");
       const axis = isDark ? "rgba(255,255,255,0.28)" : "rgba(0,0,0,0.25)";
       const text = isDark ? "rgba(255,255,255,0.78)" : "rgba(0,0,0,0.65)";
@@ -609,9 +542,6 @@
       ctx.fillText(`Hourly intake (ml) — ${dayKey}`, padL, 14);
     }
 
-    /***********************
-     * MENU + MODALS
-     ***********************/
     function openMenu(){
       menuPanel.classList.add("open");
       menuPanel.setAttribute("aria-hidden","false");
@@ -636,9 +566,6 @@
       modalEl.setAttribute("aria-hidden","true");
     }
 
-    /***********************
-     * REMINDER LOGIC
-     ***********************/
     function setStatus(text){ statusEl.textContent = text; }
 
     async function maybeRequestNotifications() {
@@ -667,9 +594,6 @@
       }
     }
 
-    /***********************
-     * PERSONALISATION
-     ***********************/
     function populatePersonaliseForm(){
       pWeight.value = profile.weightKg ? String(profile.weightKg) : "";
       pGender.value = profile.gender || "unspecified";
@@ -701,7 +625,6 @@
     }
 
     function savePersonalisation(){
-      // Basic validation (not strict)
       const w = pWeight.value.trim();
       profile.weightKg = w ? w : "";
 
@@ -739,9 +662,6 @@
       showToast("Personalisation reset");
     }
 
-    /***********************
-     * BIND EVENTS
-     ***********************/
     bottleBtn.addEventListener("click", logDrinkNow);
     undoBtn.addEventListener("click", undoLast);
 
@@ -778,28 +698,24 @@
       openModal(settingsModal);
     });
 
-    // Close buttons
     closeHistoryBtn.addEventListener("click", () => closeModal(historyModal));
     closeReminderBtn.addEventListener("click", () => closeModal(reminderModal));
     closeChartBtn.addEventListener("click", () => closeModal(chartModal));
     closePersonaliseBtn.addEventListener("click", () => closeModal(personaliseModal));
     closeSettingsBtn.addEventListener("click", () => closeModal(settingsModal));
 
-    // Close by clicking overlay
     historyModal.addEventListener("click", (e) => { if (e.target === historyModal) closeModal(historyModal); });
     reminderModal.addEventListener("click", (e) => { if (e.target === reminderModal) closeModal(reminderModal); });
     chartModal.addEventListener("click", (e) => { if (e.target === chartModal) closeModal(chartModal); });
     personaliseModal.addEventListener("click", (e) => { if (e.target === personaliseModal) closeModal(personaliseModal); });
     settingsModal.addEventListener("click", (e) => { if (e.target === settingsModal) closeModal(settingsModal); });
 
-    // Close menu outside click
     document.addEventListener("click", (e) => {
       if (!menuPanel.classList.contains("open")) return;
       const within = menuPanel.contains(e.target) || menuBtn.contains(e.target);
       if (!within) closeMenu();
     });
 
-    // ESC closes
     document.addEventListener("keydown", (e) => {
       if (e.key === "Escape"){
         closeMenu();
@@ -813,7 +729,6 @@
 
     chartDateSelect.addEventListener("change", () => drawChart(chartDateSelect.value));
 
-    // Reminder start/stop
     startBtn.addEventListener("click", async () => {
       const mins = Number(minutesInput.value);
       if (!mins || mins < 1) {
@@ -842,7 +757,6 @@
       minutesInput.disabled = false;
     });
 
-    // Personalisation live preview
     cHeadwear.addEventListener("change", applyLiveOutfitFromSelects);
     cFacewear.addEventListener("change", applyLiveOutfitFromSelects);
     cShirt.addEventListener("change", applyLiveOutfitFromSelects);
@@ -854,14 +768,8 @@
     savePersonaliseBtn.addEventListener("click", savePersonalisation);
     resetPersonaliseBtn.addEventListener("click", resetPersonalisation);
 
-    /***********************
-     * INIT
-     ***********************/
-    // Apply saved personalisation to bottle and text
     applyOutfitToBottle();
     syncCupText();
-
-    // Initial UI
     updateMainUI();
     scheduleMidnightRefresh();
   });
